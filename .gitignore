@@ -21,3 +21,9 @@ Makefile
 cmake_install.cmake
 src/core/Version.h
 build_ubuntu.sh
+*.o
+*.dblite
+*.elf
+*.hex
+*.checksum
+.vscode

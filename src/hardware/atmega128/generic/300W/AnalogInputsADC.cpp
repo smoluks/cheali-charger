@@ -77,14 +77,14 @@ namespace AnalogInputsADC
         //ADC Auto Trigger Source - Free Running mode
 
         //ADEN: ADC Enable
-        //ADATE: ADC Auto Trigger Enable
+        //ADFR: ADC Free Running Select
         //ADIE: ADC Interrupt Enable
         //ADPS2:0: ADC Prescaler Select Bits = 16MHz/ 64 = 250kHz (above the recommended value)
         /* atmega32 datasheet:
         By default, the successive approximation circuitry requires an input clock frequency between
         50kHz and 200kHz to get maximum resolution. If a lower resolution than 10 bits is needed, the
         input clock frequency to the ADC can be higher than 200kHz to get a higher sample rate. */
-        ADCSRA = _BV(ADEN) | _BV(ADATE) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1);
+        ADCSRA = _BV(ADEN) | _BV(ADFR) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1);
 
         //start conversion
         ADCSRA |= _BV(ADSC);
