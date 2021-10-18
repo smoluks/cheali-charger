@@ -20,11 +20,19 @@
 #include "AnalogInputsADC.h"
 #include "IO.h"
 #include "Timer0.h"
-#include "LiquidCrystal.h"
+#include "HD44780.h"
 
 #ifndef PINS_H_
 #error pins not defined (include *pins.h header in your HardwareConfig.h)
 #endif
+
+uint8_t hardware::getKeyPressed()
+{
+    return   (IO::digitalRead(BUTTON_STOP_PIN) ? 0 : BUTTON_STOP)
+            | (IO::digitalRead(BUTTON_DEC_PIN)  ? 0 : BUTTON_DEC)
+            | (IO::digitalRead(BUTTON_INC_PIN)  ? 0 : BUTTON_INC)
+            | (IO::digitalRead(BUTTON_START_PIN)? 0 : BUTTON_START);
+}
 
 void hardware::initializePins()
 {
@@ -57,6 +65,11 @@ void hardware::initializePins()
     IO::pinMode(SMPS_DISABLE_PIN, OUTPUT);
     IO::pinMode(DISCHARGE_VALUE_PIN, OUTPUT);
     IO::pinMode(DISCHARGE_DISABLE_PIN, OUTPUT);
+    
+    IO::pinMode(BUTTON_STOP_PIN, INPUT);
+    IO::pinMode(BUTTON_DEC_PIN, INPUT);
+    IO::pinMode(BUTTON_INC_PIN, INPUT);
+    IO::pinMode(BUTTON_START_PIN, INPUT);
 }
 
 void hardware::initialize()

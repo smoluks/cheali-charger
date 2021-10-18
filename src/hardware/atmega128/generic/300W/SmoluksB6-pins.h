@@ -18,6 +18,17 @@
 #ifndef PINS_H_
 #define PINS_H_
 
+#define PIN_0                    (1 << 0)
+#define PIN_1                    (1 << 1)
+#define PIN_2                    (1 << 2)
+#define PIN_3                    (1 << 3)
+#define PIN_4                    (1 << 4)
+#define PIN_5                    (1 << 5)
+#define PIN_6                    (1 << 6)
+#define PIN_7                    (1 << 7)
+#define PIN_PASTHALF             0xF0
+#define PIN_ALL                  0xFF
+
 // pin configuration
 #define MUX_ADR2_PIN            1
 #define MUX_ADR1_PIN            2
@@ -38,17 +49,26 @@
 #define SMPS_DISABLE_PIN        15
 #define BUZZER_PIN              16
 
-// pin 17,18 - VCC, GND
-#ifndef LCD_ENABLE_PIN
+// ----- LCD -----
+#define LCD_ENABLE_8BITMODE
 
-#define LCD_D3_PIN              19
-#define LCD_D2_PIN              20
-#define LCD_D1_PIN              21
-#define LCD_D0_PIN              22
-#define LCD_ENABLE_PIN          23
-#define LCD_RS_PIN              24
+#define LCD_DATA_PORT          &PORTC
+#define LCD_DATA_DDR           &DDRC
 
-#endif //LCD_ENABLE_PIN
+#define LCD_RS_PORT            &PORTD, 7
+#define LCD_RS_DDR             &DDRD, 7
+
+#define LCD_RW_PORT            &PORTG, 1
+#define LCD_RW_DDR             &DDRG, 1
+
+#define LCD_E_PORT             &PORTG, 0
+#define LCD_E_DDR              &DDRG, 0
+
+// ----- Buttons -----
+#define BUTTON_STOP_PIN         43
+#define BUTTON_DEC_PIN          42
+#define BUTTON_INC_PIN          41
+#define BUTTON_START_PIN        40
 
 #define BALANCER7_LOAD_PIN      25
 #define BALANCER8_LOAD_PIN      26
@@ -91,13 +111,6 @@
 #define MADDR_T_INTERN          (1 + MUXINPUT0)
 #define MADDR_V_IN              (2 + MUXINPUT0)
 #define MADDR_T_EXTERN          (3 + MUXINPUT0)
-
-#ifndef   MADDR_BUTTON_DEC
-#define MADDR_BUTTON_DEC        (4 + MUXINPUT0)
-#define MADDR_BUTTON_INC        (5 + MUXINPUT0)
-#define MADDR_BUTTON_STOP       (6 + MUXINPUT0)
-#define MADDR_BUTTON_START      (7 + MUXINPUT0)
-#endif    //MADDR_BUTTON_DEC
 
 #define MADDR_V_BALANSER1       (0 + MUXINPUT1)
 #define MADDR_V_BALANSER2       (1 + MUXINPUT1)

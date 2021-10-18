@@ -120,23 +120,17 @@ namespace AnalogInputsADC
         {MADDR_REORDER(MADDR_T_EXTERN), MUX0_Z_A_PIN, AnalogInputs::Textern, 0, NO_NOISE},
         {MADDR_REORDER(MADDR_V_BALANSER4), MUX1_Z_A_PIN, AnalogInputs::Vb4_pin, 0, NO_NOISE},
         {-1, OUTPUT_VOLTAGE_PLUS_PIN, AnalogInputs::Vout_plus_pin, 0, 10},
-        {MADDR_REORDER(MADDR_BUTTON_DEC), MUX0_Z_A_PIN, AnalogInputs::VirtualInputs, BUTTON_DEC, NO_NOISE},
         {MADDR_REORDER(MADDR_V_BALANSER5), MUX1_Z_A_PIN, AnalogInputs::Vb5_pin, 0, NO_NOISE},
         {-1, OUTPUT_VOLTAGE_MINUS_PIN, AnalogInputs::Vout_minus_pin, 0, 10},
-        {MADDR_REORDER(MADDR_BUTTON_INC), MUX0_Z_A_PIN, AnalogInputs::VirtualInputs, BUTTON_INC, NO_NOISE},
         {MADDR_REORDER(MADDR_V_BALANSER6), MUX1_Z_A_PIN, AnalogInputs::Vb6_pin, 0, NO_NOISE},
 #if MAX_BALANCE_CELLS > 6
         {-1, SMPS_CURRENT_PIN, AnalogInputs::Ismps, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_BUTTON_STOP), MUX0_Z_A_PIN, AnalogInputs::VirtualInputs, BUTTON_STOP, NO_NOISE},
         {MADDR_REORDER(MADDR_V_BALANSER7), MUX1_Z_A_PIN, AnalogInputs::Vb7_pin, 0, NO_NOISE},
         {-1, DISCHARGE_CURRENT_PIN, AnalogInputs::Idischarge, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_BUTTON_START), MUX0_Z_A_PIN, AnalogInputs::VirtualInputs, BUTTON_START, NO_NOISE},
         {MADDR_REORDER(MADDR_V_BALANSER8), MUX1_Z_A_PIN, AnalogInputs::Vb8_pin, 0, NO_NOISE},
 #else
         {-1, SMPS_CURRENT_PIN, AnalogInputs::Ismps, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_BUTTON_STOP), MUX0_Z_A_PIN, AnalogInputs::VirtualInputs, BUTTON_STOP, NO_NOISE},
         {-1, DISCHARGE_CURRENT_PIN, AnalogInputs::Idischarge, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_BUTTON_START), MUX0_Z_A_PIN, AnalogInputs::VirtualInputs, BUTTON_START, NO_NOISE},
 #endif
     };
 
@@ -317,11 +311,6 @@ namespace AnalogInputsADC
     }
 
 } // namespace AnalogInputsADC
-
-uint8_t hardware::getKeyPressed()
-{
-    return AnalogInputsADC::adc_keyboard_;
-}
 
 ISR(ADC_vect)
 {

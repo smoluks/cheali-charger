@@ -44,6 +44,10 @@
 namespace IO
 {
         // Core IO functions to be implemented in proper target folder
+        inline void setPort(volatile uint8_t* port, uint8_t value) INLINE_ATTR;
+        inline void setIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
+        inline void resetIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
+
         inline void digitalWrite(uint8_t pinNumber, uint8_t value) INLINE_ATTR;
         inline uint8_t digitalRead(uint8_t pinNumber) INLINE_ATTR;
         inline void pinMode(uint8_t pinNumber, uint8_t mode) INLINE_ATTR;
@@ -54,6 +58,21 @@ namespace IO
         inline uint8_t pinBitmask(uint8_t pinNumber) INLINE_ATTR;
         inline volatile uint8_t* pinToInputPort(uint8_t pinNumber) INLINE_ATTR;
         inline volatile uint8_t* pinToDDR(uint8_t pinNumber) INLINE_ATTR;
+        
+        inline void setPort(volatile uint8_t* port, uint8_t value)
+        {
+                *port = value;
+        }
+
+        inline void setIOBit(volatile uint8_t* port, uint8_t bit)
+        {
+                *port |= _BV(bit);
+        }
+
+        inline void resetIOBit(volatile uint8_t* port, uint8_t bit)
+        {
+                *port &= ~_BV(bit);
+        }
 
         inline void digitalWrite(uint8_t pinNumber, uint8_t value)
         {
