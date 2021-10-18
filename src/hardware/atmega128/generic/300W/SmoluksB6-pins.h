@@ -29,6 +29,8 @@
 #define PIN_PASTHALF             0xF0
 #define PIN_ALL                  0xFF
 
+#define __nop() asm("nop")
+
 // pin configuration
 #define MUX_ADR2_PIN            1
 #define MUX_ADR1_PIN            2
@@ -54,6 +56,7 @@
 
 #define LCD_DATA_PORT          &PORTC
 #define LCD_DATA_DDR           &DDRC
+#define LCD_DATA_PIN           &PINC
 
 #define LCD_RS_PORT            &PORTD, 7
 #define LCD_RS_DDR             &DDRD, 7

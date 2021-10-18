@@ -16,11 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LiquidCrystal_h
-#define LiquidCrystal_h
+#ifndef HD44780_h
+#define HD44780_h
 
 #include <stdint.h>
 #include <string.h>
+
+// When the display powers up, it is configured as follows:
+//
+// 1. Display clear
+// 2. Function set:
+//    DL = 1; 8-bit interface data
+//    N = 0; 1-line display
+//    F = 0; 5x8 dot character font
+// 3. Display on/off control:
+//    D = 0; Display off
+//    C = 0; Cursor off
+//    B = 0; Blinking off
+// 4. Entry mode set:
+//    I/D = 1; Increment by 1
+//    S = 0; No shift
+//
+// Note, however, that resetting the Arduino doesn't reset the LCD, so we
+// can't assume that its in that state when a sketch starts (and the
+// LiquidCrystal constructor is called).
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -60,43 +79,15 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
-namespace LiquidCrystal {
+// flags for status return
+#define LCD_BUSY 0x80
 
-  void init();
+namespace HD44780 {
+  void init(uint8_t cols, uint8_t lines, uint8_t charsize = LCD_5x8DOTS);
 
-  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
-
-  void clear();
-  void home();
-
-  void noDisplay();
-  void display();
-  void noBlink();
-  void blink();
-  void noCursor();
-  void cursor();
-  void scrollDisplayLeft();
-  void scrollDisplayRight();
-  void leftToRight();
-  void rightToLeft();
-  void autoscroll();
-  void noAutoscroll();
-
-  void createChar(uint8_t, uint8_t[]);
-  void setCursor(uint8_t, uint8_t);
-  uint8_t write(uint8_t);
-  void command(uint8_t);
-
-  uint8_t write(const uint8_t *buffer, uint8_t size);
-
-  inline uint8_t write(const char *str) {
-      if (str == 0) return 0;
-      return write((const uint8_t *)str, strlen(str));
-    }
-
-  uint8_t print(char c);
-  uint8_t print(const char buffer[]);
-
-} //namespace LiquidCrystal
+  void sendCommand(uint8_t);
+  void sendCommandNoWait(uint8_t);
+  void sendData(uint8_t);
+} //namespace HD44780
 
 #endif

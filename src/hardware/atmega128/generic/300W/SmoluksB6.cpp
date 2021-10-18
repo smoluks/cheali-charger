@@ -20,7 +20,7 @@
 #include "AnalogInputsADC.h"
 #include "IO.h"
 #include "Timer0.h"
-#include "HD44780.h"
+#include "LiquidCrystal.h"
 
 #ifndef PINS_H_
 #error pins not defined (include *pins.h header in your HardwareConfig.h)
@@ -78,7 +78,6 @@ void hardware::initializePins()
 
 void hardware::initialize()
 {
-    LiquidCrystal::init();
     LiquidCrystal::begin(LCD_COLUMNS, LCD_LINES);
     Timer0::initialize();
     Timer1::initialize();

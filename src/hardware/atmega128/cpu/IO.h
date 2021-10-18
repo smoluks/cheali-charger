@@ -45,6 +45,7 @@ namespace IO
 {
         // Core IO functions to be implemented in proper target folder
         inline void setPort(volatile uint8_t* port, uint8_t value) INLINE_ATTR;
+        inline uint8_t getPort(volatile uint8_t* port) INLINE_ATTR;
         inline void setIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
         inline void resetIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
         inline bool readIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
@@ -63,6 +64,11 @@ namespace IO
         inline void setPort(volatile uint8_t* port, uint8_t value)
         {
                 *port = value;
+        }
+
+        inline uint8_t getPort(volatile uint8_t* port)
+        {
+                return *port;
         }
 
         inline void setIOBit(volatile uint8_t* port, uint8_t bit)

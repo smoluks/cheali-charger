@@ -18,7 +18,7 @@
 #include "LcdPrint.h"
 #include "Hardware.h"
 #include "memory.h"
-#include "HD44780.h"
+#include "LiquidCrystal.h"
 
 using namespace AnalogInputs;
 
