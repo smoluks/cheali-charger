@@ -28,10 +28,10 @@
 
 uint8_t hardware::getKeyPressed()
 {
-    return   (IO::digitalRead(BUTTON_STOP_PIN) ? 0 : BUTTON_STOP)
-            | (IO::digitalRead(BUTTON_DEC_PIN)  ? 0 : BUTTON_DEC)
-            | (IO::digitalRead(BUTTON_INC_PIN)  ? 0 : BUTTON_INC)
-            | (IO::digitalRead(BUTTON_START_PIN)? 0 : BUTTON_START);
+    return   (IO::readIOBit(BUTTON_STOP_PIN) ? 0 : BUTTON_STOP)
+            | (IO::readIOBit(BUTTON_DEC_PIN)  ? 0 : BUTTON_DEC)
+            | (IO::readIOBit(BUTTON_INC_PIN)  ? 0 : BUTTON_INC)
+            | (IO::readIOBit(BUTTON_START_PIN)? 0 : BUTTON_START);
 }
 
 void hardware::initializePins()
@@ -66,10 +66,14 @@ void hardware::initializePins()
     IO::pinMode(DISCHARGE_VALUE_PIN, OUTPUT);
     IO::pinMode(DISCHARGE_DISABLE_PIN, OUTPUT);
     
-    IO::pinMode(BUTTON_STOP_PIN, INPUT);
-    IO::pinMode(BUTTON_DEC_PIN, INPUT);
-    IO::pinMode(BUTTON_INC_PIN, INPUT);
-    IO::pinMode(BUTTON_START_PIN, INPUT);
+    IO::resetIOBit(BUTTON_STOP_DDR);
+    IO::setIOBit(BUTTON_STOP_PORT);
+    IO::resetIOBit(BUTTON_DEC_DDR);
+    IO::setIOBit(BUTTON_DEC_PORT);
+    IO::resetIOBit(BUTTON_INC_DDR);
+    IO::setIOBit(BUTTON_INC_PORT);
+    IO::resetIOBit(BUTTON_START_DDR);
+    IO::setIOBit(BUTTON_START_PORT);
 }
 
 void hardware::initialize()

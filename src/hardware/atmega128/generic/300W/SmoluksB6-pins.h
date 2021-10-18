@@ -65,10 +65,22 @@
 #define LCD_E_DDR              &DDRG, 0
 
 // ----- Buttons -----
-#define BUTTON_STOP_PIN         43
-#define BUTTON_DEC_PIN          42
-#define BUTTON_INC_PIN          41
-#define BUTTON_START_PIN        40
+#define BUTTON_STOP_PORT       &PORTB, 3
+#define BUTTON_STOP_DDR        &DDRB, 3
+#define BUTTON_STOP_PIN        &PINB, 3
+
+#define BUTTON_DEC_PORT       &PORTB, 2
+#define BUTTON_DEC_DDR        &DDRB, 2
+#define BUTTON_DEC_PIN        &PINB, 2
+
+#define BUTTON_INC_PORT       &PORTE, 6
+#define BUTTON_INC_DDR        &DDRE, 6
+#define BUTTON_INC_PIN        &PINE, 6
+
+#define BUTTON_START_PORT       &PORTE, 7
+#define BUTTON_START_DDR        &DDRE, 7
+#define BUTTON_START_PIN        &PINE, 7
+
 
 #define BALANCER7_LOAD_PIN      25
 #define BALANCER8_LOAD_PIN      26

@@ -47,6 +47,7 @@ namespace IO
         inline void setPort(volatile uint8_t* port, uint8_t value) INLINE_ATTR;
         inline void setIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
         inline void resetIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
+        inline bool readIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
 
         inline void digitalWrite(uint8_t pinNumber, uint8_t value) INLINE_ATTR;
         inline uint8_t digitalRead(uint8_t pinNumber) INLINE_ATTR;
@@ -72,6 +73,11 @@ namespace IO
         inline void resetIOBit(volatile uint8_t* port, uint8_t bit)
         {
                 *port &= ~_BV(bit);
+        }
+
+        inline bool readIOBit(volatile uint8_t* port, uint8_t bit)
+        {
+                return *port & _BV(bit);
         }
 
         inline void digitalWrite(uint8_t pinNumber, uint8_t value)
