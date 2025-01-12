@@ -111,7 +111,6 @@ static void currentCalibration(uint8_t point)
     AnalogInputs::CalibrationPoint p;
     bool save = false;
 
-    Program::dischargeOutputCapacitor();
     AnalogInputs::powerOn();
     if(testVout(false)) {
 
@@ -156,7 +155,7 @@ static void currentCalibration(uint8_t point)
 
 static void printCurrentPointItem(uint8_t index) {
     AnalogInputs::CalibrationPoint pSet;
-    AnalogInputs::getCalibrationPoint(pSet, gName_, index);
+    AnalogInputs::getCalibrationPoint(pSet, gNameSet_, index);
     lcdPrintCurrent(pSet.y, 7);
 }
 

@@ -1,7 +1,7 @@
 Welcome to cheali-charger!
 ==========================
 
-This project is an alternative firmware for a variety of lipo chargers,  
+This project is an alternative firmware to a variety of lipo chargers,  
 see [hardware.](README.md#hardware)
 
 Don't use it if You don't need to  
@@ -71,21 +71,24 @@ Hardware
 - Turnigy Accucel-6 50W 5A Balancer/Charger w/ Accessories
 - Turnigy Accucel-8 150W 7A Balancer/Charger
 - Turnigy MEGA 400Wx2 Battery Charger/Discharger (800W)
+- Thunder T610 Balance Charger/Discharger
+- Redox Beta 50W 5A charger (at least later model with yellow soldermask)
 - ... many more
 
 **Nuvoton NuMicro M0517LBN CPU:**
 - IMAX B6 Charger/Discharger 1-6 Cells
 
-**Unsupported**
-- [Turnigy Accucel-6 80W Balancer/Charger](http://www.hobbyking.com/hobbyking/store/__64345__Turnigy_Accucel_6_80W_10A_Balancer_Charger_LiHV_Capable.html) - Based on an older, uncommon CPU. See [#106](https://github.com/stawel/cheali-charger/issues/106)
-- Imax B6 Mini 1-6 60W Balancer/Charger - Same reason as above
-- **any charger listed above with an unknown CPU** (CPU not labeled)
+**Unsupported due to old or uncommon CPU See [#106](https://github.com/stawel/cheali-charger/issues/106)**
+- [Turnigy Accucel-6 80W Balancer/Charger](https://hobbyking.com/en_us/turnigy-accucel-6-80w-10a-1-6s-balancer-charger-suitable-for-lihv.html)
+- IMAX B6 Mini 1-6 60W Balancer/Charger
+- IMAX B6 V2 Balancer/Charger
+- ... others, do your research or ask on the forum
 
 Usage:
 ------
 
-After [flashing](docs/flashing.md) your charger the first thing you should do is  
-reset the charger to default settings (go to: "options"->"reset default" and press the "start" button)  
+After [flashing](docs/flashing.md) your charger the first thing you should do is to 
+reset the charger to its default settings ("options"->"reset default")
 and then [calibrate](README.md#calibration) it, now your charger is ready to use.
 
 programming you charger:
@@ -161,32 +164,30 @@ Troubleshooting
 ---------------
 
 1. After flashing I see "options" and some strange characters in the second line (for example: squares), what should I do?
-  - reset the charger to default settings (go to: "options"->"reset default" and press the "start" button)
+    - reset the charger to default settings (go to: "options"->"reset default" and press the "start" button)
 2. I get **"calib. error"**: see [this.](docs/calibration_error_codes.md)
-
-**Atmega32 CPU:**
-
-1. After flashing charger doesn't work (display shows squares):
-  - download the *.hex again, use the "RAW" button in github
-  - check the sha1 sum of the file, compare it with *.sha1:
-    - linux: $sha1sum cheali-charger*.hex
-    - windows: install [Microsoft File Checksum Integrity Verifier](http://www.microsoft.com/en-us/download/details.aspx?id=11533)
-      - in cmd.exe: fciv.exe -sha1 -add cheali-charger-*.hex
-2. Sha1 sum is correct and the charger still doesn't work (display shows squares):
-  - reset atmega32 fuses using avrdude:
-    - windows: avrdude.exe -patmega32 -cusbasp -Uhfuse:w:0xc5:m -Ulfuse:w:0x3f:m
-    - linux:   avrdude     -patmega32 -cusbasp -Uhfuse:w:0xc5:m -Ulfuse:w:0x3f:m
+3. Occasionally when the power is turned on, the error "eeprom error: 2 yes" pops up (or any other number): see [#291](https://github.com/stawel/cheali-charger/issues/291)
+4. After flashing charger doesn't work (display shows squares):
+    - download the *.hex again, use the "RAW" button in github
+    - check the sha1 sum of the file, compare it with *.sha1:
+      - linux: $sha1sum cheali-charger*.hex
+      - windows: install [Microsoft File Checksum Integrity Verifier](http://www.microsoft.com/en-us/download/details.aspx?id=11533)
+        - in cmd.exe: fciv.exe -sha1 -add cheali-charger-*.hex
+5. [Atmega32 CPU] Sha1 sum is correct and the charger still doesn't work (display shows squares):
+    - reset atmega32 fuses using avrdude:
+      - windows: avrdude.exe -patmega32 -cusbasp -Uhfuse:w:0xc5:m -Ulfuse:w:0x3f:m
+      - linux:   avrdude     -patmega32 -cusbasp -Uhfuse:w:0xc5:m -Ulfuse:w:0x3f:m
 
 
 Useful materials
 ----------------
 - [Iggnus fork](https://github.com/Iggnus/cheali-charger-i1), branch: [v0.99](https://github.com/Iggnus/cheali-charger-i1/tree/v0.99), [v0.33+](https://github.com/Iggnus/cheali-charger-i1/tree/v0.33+)
 - [sasam M0517 flash tools](https://github.com/sasam/M0517_flash_tools)
-- [Cheali Charger v1.00 Manual / User Guide](docs/users_docs/Cheali Charger 1.00 User Manual English_draft_002.pdf) (draft 002) by PascalRZ
+- [Cheali Charger v1.00 Manual / User Guide](<docs/users_docs/Cheali Charger 1.00 User Manual English_draft_002.pdf>) (draft 002) by PascalRZ
 - Cheali Charger V0.33m - User Guide: [English](https://docs.google.com/document/d/1Nv2vBXbWo6qE2U9rXZfzVDTfWu3j778flImbFJp74tk), [Hungarian](https://docs.google.com/file/d/0B1RXXTatsA1cWVJYbERUSWo5Q28)
 - balancer modification, Hungarian: [pdf](http://file.emiter.hu/file/Modellezes/Cheali/Tuning/HK_es_TURNIGY_TOLTO_BALANSZ_tuning_javitott.pdf), [website](http://rc-miskolc.emiter.hu/rc-miskolc/index.php?option=com_content&view=article&id=278&Itemid=205)
 - Gyuiri's schematics: [turnigy 2X400](https://drive.google.com/file/d/0B1RXXTatsA1cczlMR184LUVZSkE), [turnigy 2x200](https://drive.google.com/file/d/0B1RXXTatsA1cb1R5NHM3MEtsakE), [turnigy 8150](https://drive.google.com/file/d/0B1RXXTatsA1cbkM2dXFxTldjTUU)
-- [Imax B6 Schematic](http://www.rcgroups.com/forums/showatt.php?s=df7049bcbafdb5d7d06765c264e5c4bb&attachmentid=3693125&d=1293732709), [rcgroups](http://www.rcgroups.com/forums/showthread.php?t=1362933) 
+- [Imax B6 Schematic](docs/imaxB6/imax_b6_hobbyking_eco06_digital_charger.pdf) from: [rcgroups](https://www.rcgroups.com/forums/showthread.php?827821-iMax-B6-service-menu/page21) 
 - Panasonic [ni-mh-handbook-2014](http://eu.industrial.panasonic.com/sites/default/pidseu/files/downloads/files/ni-mh-handbook-2014_interactive.pdf), Duracell [Ni-MH_Rechargeable_Batteries_2007](http://www6.zetatalk.com/docs/Batteries/Chemistry/Duracell_Ni-MH_Rechargeable_Batteries_2007.pdf)
 - [batteryuniversity.com](http://batteryuniversity.com/)
 - Atmel [AVR463: Charging Nickel-Metal Hydride Batteries with ATAVRBC100](http://www.atmel.com/Images/doc8098.pdf)

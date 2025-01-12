@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-Project(cheali-charger)
+Project(cheali-charger ASM C CXX)
 
 if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "[Ww]in")
         message(STATUS "windows detected: setting enable-short-names-default to ON")
@@ -19,7 +19,7 @@ find_package(ChealiChargerInternal REQUIRED)
 
 string(TIMESTAMP timestamp "%Y%m%d")
 
-set(cheali-charger-version 2.01)
+set(cheali-charger-version 2.02)
 set(cheali-charger-eeprom-calibration-version 10)
 set(cheali-charger-eeprom-programdata-version 3)
 set(cheali-charger-eeprom-settings-version 12)
@@ -41,7 +41,8 @@ configure_file(src/core/Version.h.in src/core/Version.h)
 if(ARM-Cortex-M0)
     message(STATUS "target architecture: ARM-Cortex-M0")
     include(arm-compiler.cmake)
-    add_subdirectory(src/hardware/nuvoton-M0517)
+    add_subdirectory(src/hardware/nuvoton-M051)
+    add_subdirectory(src/hardware/nuvoton-NUC029xAN)
 else(ARM-Cortex-M0)
     message(STATUS "target architecture: avr")
     include(avr-compiler.cmake)
