@@ -11,7 +11,7 @@ Features
 - 30V Max.output
 - Connector for external load for discharge
 - Precision voltage reference 0.1%
-- UART and t sensor can be used at the same time
+- UART and t sensor can be used at the same time, 3.3V power supply can be used for HC05 or another modules
 - display brightness regulation
 
 Specs
