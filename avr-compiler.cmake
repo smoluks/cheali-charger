@@ -10,7 +10,7 @@ SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
 SET(COPT "-Os")
 SET(CINCS "")
 SET(CMCU "-mmcu=atmega32")
-SET(CDEFS "-DF_CPU=16000000")
+SET(CDEFS "-DF_CPU=20000000")
 
 SET(CXXEXTRA "-ffunction-sections -fdata-sections -fno-exceptions")
 

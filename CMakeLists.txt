@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-Project(cheali-charger ASM C CXX)
+Project(cheali-charger C CXX)
 
 if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "[Ww]in")
         message(STATUS "windows detected: setting enable-short-names-default to ON")
@@ -47,4 +47,5 @@ else(ARM-Cortex-M0)
     message(STATUS "target architecture: avr")
     include(avr-compiler.cmake)
     add_subdirectory(src/hardware/atmega32)
+    add_subdirectory(src/hardware/atmega128)
 endif(ARM-Cortex-M0)

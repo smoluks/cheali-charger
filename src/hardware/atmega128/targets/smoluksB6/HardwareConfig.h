@@ -21,15 +21,11 @@
 #include "GlobalConfig.h"
 #include "HardwareConfigGeneric.h"
 
-#undef  MAX_BALANCE_CELLS
-#define MAX_BALANCE_CELLS 8
-
 #include "SmoluksB6-pins.h"
 
-
-#define MAX_CHARGE_V            ANALOG_VOLT(36.300)
-#define MAX_CHARGE_I            ANALOG_AMP(7.000)
-#define MAX_CHARGE_P            ANALOG_WATT(150.000)
+#define MAX_CHARGE_V            ANALOG_VOLT(30.000)
+#define MAX_CHARGE_I            ANALOG_AMP(10.000)
+#define MAX_CHARGE_P            ANALOG_WATT(300.000)
 
 #define MAX_DISCHARGE_P         ANALOG_WATT(50.000)
 #define MAX_DISCHARGE_I         ANALOG_AMP(5.000)

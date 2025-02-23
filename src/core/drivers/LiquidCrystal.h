@@ -60,7 +60,8 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
-namespace LiquidCrystal {
+namespace LiquidCrystal
+{
 
   void init();
 
@@ -84,19 +85,18 @@ namespace LiquidCrystal {
 
   void createChar(uint8_t, uint8_t[]);
   void setCursor(uint8_t, uint8_t);
-  uint8_t write(uint8_t);
-  void command(uint8_t);
 
-  uint8_t write(const uint8_t *buffer, uint8_t size);
+  void write(const uint8_t *buffer, uint8_t size);
+  inline void write(const char *str)
+  {
+    if (str == 0)
+      return;
+    write((const uint8_t *)str, strlen(str));
+  }
 
-  inline uint8_t write(const char *str) {
-      if (str == 0) return 0;
-      return write((const uint8_t *)str, strlen(str));
-    }
+  void print(char c);
+  void print(const char buffer[]);
 
-  uint8_t print(char c);
-  uint8_t print(const char buffer[]);
-
-} //namespace LiquidCrystal
+} // namespace LiquidCrystal
 
 #endif

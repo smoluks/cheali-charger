@@ -83,11 +83,11 @@
 #define LCD_BUSY 0x80
 
 namespace HD44780 {
-  void init(uint8_t cols, uint8_t lines, uint8_t charsize = LCD_5x8DOTS);
+  void init(uint8_t cols = 16, uint8_t lines = 2, uint8_t charsize = LCD_5x8DOTS);
 
-  void sendCommand(uint8_t);
+  void command(uint8_t);
+  void write(uint8_t value);
   void sendCommandNoWait(uint8_t);
-  void sendData(uint8_t);
 } //namespace HD44780
 
 #endif

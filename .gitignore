@@ -28,3 +28,4 @@ build_ubuntu.sh
 *.hex
 *.checksum
 .vscode
+/build

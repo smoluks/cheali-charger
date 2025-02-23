@@ -1,19 +1,5 @@
 /*
-    cheali-charger - open source firmware for a variety of LiPo chargers
-    Copyright (C) 2013  Paweł Stawicki. All right reserved.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    HD44780 all-port driver for cheali-charger
 */
 #include "HD44780.h"
 
@@ -24,8 +10,6 @@
 #include "Utils.h"
 #include "Hardware.h"
 
-/************ low level data pushing commands **********/
-
 namespace HD44780
 {
 
@@ -33,18 +17,25 @@ namespace HD44780
   void write8bits(uint8_t);
 #else
   void write4bits(uint8_t);
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
 
   void pulseEnable(void);
   void waitReady(void);
 
   void init(uint8_t cols, uint8_t lines, uint8_t dotsize)
   {
-    uint8_t _displayfunction = LCD_FUNCTIONSET | LCD_5x8DOTS;
+    uint8_t _displayfunction;
+#ifndef LCD_ENABLE_8BITMODE
+    _displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
+#else
+    _displayfunction = LCD_FUNCTIONSET | LCD_8BITMODE | LCD_1LINE | LCD_5x8DOTS;
+#endif // LCD_ENABLE_8BITMODE
+
     if (lines > 1)
     {
       _displayfunction |= LCD_2LINE;
     }
+
     // for some 1 line displays you can select a 10 pixel high font
     if ((dotsize != 0) && (lines == 1))
     {
@@ -62,15 +53,13 @@ namespace HD44780
 #ifdef LCD_RW_PORT
     IO::setIOBit(LCD_RW_DDR);
     IO::resetIOBit(LCD_RW_PORT);
-#endif //LCD_RW_PORT
+#endif // LCD_RW_PORT
 
 #ifndef LCD_ENABLE_8BITMODE
     IO::setHighHalfPort(LCD_DATA_DDR, 0xFF);
-    _displayfunction |= LCD_4BITMODE;
 #else
     IO::setPort(LCD_DATA_DDR, PIN_ALL);
-    _displayfunction |= LCD_8BITMODE;
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
 
     //----- initialization ------
     // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
@@ -78,7 +67,7 @@ namespace HD44780
     // before sending commands. Arduino can turn on way befer 4.5V so we'll wait 50
     Utils::delayMicroseconds(50000);
 
-    //put the LCD into 4 bit or 8 bit mode
+    // put the LCD into 4 bit or 8 bit mode
 #ifndef LCD_ENABLE_8BITMODE
     // this is according to the hitachi HD44780 datasheet
     // figure 24, pg 46
@@ -103,21 +92,21 @@ namespace HD44780
 
     // Send function set command sequence
     sendCommandNoWait(_displayfunction);
-    Utils::delayMicroseconds(4500); // wait more than 4.1ms
+    Utils::delayMicroseconds(4100); // wait more than 4.1ms
 
     // second try
     sendCommandNoWait(_displayfunction);
-    Utils::delayMicroseconds(150);
+    Utils::delayMicroseconds(100);
 
     // third go
-    sendCommand(_displayfunction);
-#endif //LCD_ENABLE_8BITMODE
+    command(_displayfunction);
+#endif // LCD_ENABLE_8BITMODE
 
     // finally, set # lines, font size, etc.
-    sendCommand(_displayfunction);
+    HD44780::command(_displayfunction);
   }
 
-  void sendCommand(uint8_t value)
+  void command(uint8_t value)
   {
     IO::resetIOBit(LCD_RS_PORT);
 
@@ -137,7 +126,7 @@ namespace HD44780
     write4bits(value << 4);
     pulseEnable();
     waitReady();
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
   }
 
   void sendCommandNoWait(uint8_t value)
@@ -160,10 +149,10 @@ namespace HD44780
     write4bits(value << 4);
     pulseEnable();
     Utils::delayMicroseconds(100);
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
   }
 
-  void sendData(uint8_t value)
+  void write(uint8_t value)
   {
     IO::setIOBit(LCD_RS_PORT);
 
@@ -183,7 +172,7 @@ namespace HD44780
     write4bits(value << 4);
     pulseEnable();
     waitReady();
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
   }
 
 #ifdef LCD_ENABLE_8BITMODE
@@ -196,13 +185,13 @@ namespace HD44780
   {
     IO::setHighHalfPort(LCD_DATA_PORT, value);
   }
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
 
   void pulseEnable(void)
   {
     __nop();
     IO::setIOBit(LCD_E_PORT);
-    __nop(); //230ns max at 5V, see page 52
+    __nop(); // 230ns max at 5V, see page 52
     __nop();
     __nop();
     __nop();
@@ -229,7 +218,7 @@ namespace HD44780
     {
 #ifdef LCD_ENABLE_8BITMODE
       IO::setIOBit(LCD_E_PORT);
-      __nop(); //160ns max at 5V, see page 52
+      __nop(); // 160ns max at 5V, see page 52
       __nop();
       __nop();
 
@@ -257,7 +246,7 @@ namespace HD44780
 
       if (!busyFlag)
         break;
-#endif //LCD_ENABLE_8BITMODE
+#endif // LCD_ENABLE_8BITMODE
     }
 
 #ifndef LCD_ENABLE_8BITMODE
@@ -266,6 +255,6 @@ namespace HD44780
     IO::setPort(LCD_DATA_DDR, 0xFF);
 #endif
 
-#endif //LCD_RW_PORT
+#endif // LCD_RW_PORT
   }
 }
