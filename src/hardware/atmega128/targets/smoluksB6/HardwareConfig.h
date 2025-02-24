@@ -23,6 +23,10 @@
 
 #include "SmoluksB6-pins.h"
 
+#define F_CPU 20000000UL
+#define TIMER_INTERRUPT_PERIOD_MICROSECONDS 625 //Timer2 period
+#define TIMER_SLOW_INTERRUPT_INTERVAL       180 //This is prescaler between Timer2 period and slow interrupt (adc sum for ex.)
+
 #define MAX_CHARGE_V            ANALOG_VOLT(30.000)
 #define MAX_CHARGE_I            ANALOG_AMP(10.000)
 #define MAX_CHARGE_P            ANALOG_WATT(300.000)

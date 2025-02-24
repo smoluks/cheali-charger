@@ -44,7 +44,6 @@ void hardware::initializePins()
     IO::pinMode(BACKLIGHT_PIN, OUTPUT);
     IO::pinMode(OUTPUT_DISABLE_PIN, OUTPUT);
     IO::pinMode(FAN_PIN, OUTPUT);
-    IO::pinMode(BUZZER_PIN, OUTPUT);
 
     IO::pinMode(BALANCER1_LOAD_PIN, OUTPUT);
     IO::pinMode(BALANCER2_LOAD_PIN, OUTPUT);

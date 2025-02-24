@@ -20,59 +20,65 @@
 #include "IO.h"
 #include "Settings.h"
 
+//todo: speaker with internal buzzer
+
 #include <avr/interrupt.h>
 // Timer0 used to generate sound
 
+#if F_CPU == 16000000 || F_CPU == 20000000
+    // clk/256 (From prescaler)
+    #define TCCR0_START_VALUE (1 << WGM00) | (1 << WGM01) | (1 << CS02);
+#else    
+    //| (1<<CS00) | (1<<CS01); clk/64
+    #error "F_CPU not implemented"
+#endif
 
-namespace {
+namespace
+{
     volatile uint8_t sound_TCNT0 = 0;
 
-    void start_timer() {
-        //Fast PWM
-        //clk/256 (From prescaler)
-        TCCR0 = (1<<WGM00) | (1<<WGM01) | (1<<CS02);
-                //| (1<<CS00) | (1<<CS01); clk/64
+    void start_timer()
+    {
+        // Fast PWM        
+        TCCR0 = TCCR0_START_VALUE;
     }
 
-    void stop_timer() {
-        TCCR0=0;
-        TCNT0=0;
+    void stop_timer()
+    {
+        TCCR0 = 0;
+        TCNT0 = 0;
     }
 }
-
-
 
 ISR(TIMER0_COMP_vect)
 {
-    IO::digitalWrite(BUZZER_PIN, 1);
+    IO::setIO(BUZZER_PORT);
 }
-
 
 ISR(TIMER0_OVF_vect)
 {
-    IO::digitalWrite(BUZZER_PIN, 0);
+    IO::resetIO(BUZZER_PORT);
     TCNT0 = sound_TCNT0;
 }
 
-
 void hardware::setBuzzer(uint8_t val)
 {
-    if(val == 0) {
+    if (val == 0)
+    {
         stop_timer();
-        IO::digitalWrite(BUZZER_PIN, 0);
-    } else {
-        val >>=1;
+        IO::resetIO(BUZZER_PORT);
+    }
+    else
+    {
+        val >>= 1;
         sound_TCNT0 = 120 + val;
-        OCR0 = (120 + val + 256)/2;
+        OCR0 = (120 + val + 256) / 2;
         start_timer();
     }
 }
 
-
 void Timer0::initialize()
 {
-#if F_CPU != 16000000
-#error "F_CPU != 16000000 - not implemented"
-#endif
-    TIMSK|=(1<<OCIE0) | (1<<TOIE0);              //enable interrupts
+    IO::setIO(BUZZER_DDR);
+    TIMSK |= (1 << OCIE0) | (1 << TOIE0); // enable interrupts
 }

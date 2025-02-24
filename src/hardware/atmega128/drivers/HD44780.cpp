@@ -43,16 +43,16 @@ namespace HD44780
     }
 
     // ----- configure gpio ------
-    IO::setIOBit(LCD_RS_DDR);
-    IO::setIOBit(LCD_E_DDR);
+    IO::setIO(LCD_RS_DDR);
+    IO::setIO(LCD_E_DDR);
 
-    IO::resetIOBit(LCD_RS_PORT);
-    IO::resetIOBit(LCD_E_PORT);
+    IO::resetIO(LCD_RS_PORT);
+    IO::resetIO(LCD_E_PORT);
 
     // we can save 1 pin by not using RW, but what cost?
 #ifdef LCD_RW_PORT
-    IO::setIOBit(LCD_RW_DDR);
-    IO::resetIOBit(LCD_RW_PORT);
+    IO::setIO(LCD_RW_DDR);
+    IO::resetIO(LCD_RW_PORT);
 #endif // LCD_RW_PORT
 
 #ifndef LCD_ENABLE_8BITMODE
@@ -108,11 +108,11 @@ namespace HD44780
 
   void command(uint8_t value)
   {
-    IO::resetIOBit(LCD_RS_PORT);
+    IO::resetIO(LCD_RS_PORT);
 
     // if there is a RW pin indicated, set it low to Write
 #ifdef LCD_RW_PORT
-    IO::resetIOBit(LCD_RW_PORT);
+    IO::resetIO(LCD_RW_PORT);
 #endif
 
 #ifdef LCD_ENABLE_8BITMODE
@@ -131,11 +131,11 @@ namespace HD44780
 
   void sendCommandNoWait(uint8_t value)
   {
-    IO::resetIOBit(LCD_RS_PORT);
+    IO::resetIO(LCD_RS_PORT);
 
     // if there is a RW pin indicated, set it low to Write
 #ifdef LCD_RW_PORT
-    IO::resetIOBit(LCD_RW_PORT);
+    IO::resetIO(LCD_RW_PORT);
 #endif
 
 #ifdef LCD_ENABLE_8BITMODE
@@ -154,11 +154,11 @@ namespace HD44780
 
   void write(uint8_t value)
   {
-    IO::setIOBit(LCD_RS_PORT);
+    IO::setIO(LCD_RS_PORT);
 
     // if there is a RW pin indicated, set it low to Write
 #ifdef LCD_RW_PORT
-    IO::resetIOBit(LCD_RW_PORT);
+    IO::resetIO(LCD_RW_PORT);
 #endif
 
 #ifdef LCD_ENABLE_8BITMODE
@@ -190,13 +190,13 @@ namespace HD44780
   void pulseEnable(void)
   {
     __nop();
-    IO::setIOBit(LCD_E_PORT);
+    IO::setIO(LCD_E_PORT);
     __nop(); // 230ns max at 5V, see page 52
     __nop();
     __nop();
     __nop();
     __nop();
-    IO::resetIOBit(LCD_E_PORT);
+    IO::resetIO(LCD_E_PORT);
   }
 
   void waitReady(void)
@@ -211,38 +211,38 @@ namespace HD44780
     IO::setPort(LCD_DATA_DDR, 0);
 #endif
 
-    IO::setIOBit(LCD_RW_PORT);
-    IO::resetIOBit(LCD_RS_PORT);
+    IO::setIO(LCD_RW_PORT);
+    IO::resetIO(LCD_RS_PORT);
 
     while (true)
     {
 #ifdef LCD_ENABLE_8BITMODE
-      IO::setIOBit(LCD_E_PORT);
+      IO::setIO(LCD_E_PORT);
       __nop(); // 160ns max at 5V, see page 52
       __nop();
       __nop();
 
       uint8_t busyFlag = IO::readIOBit(LCD_DATA_PIN, 7);
 
-      IO::resetIOBit(LCD_E_PORT);
+      IO::resetIO(LCD_E_PORT);
 
       if (!busyFlag)
         break;
 #else
-      IO::setIOBit(LCD_E_PORT);
+      IO::setIO(LCD_E_PORT);
       __nop();
       __nop();
       __nop();
       uint8_t busyFlag = IO::readIOBit(LCD_DATA_PIN, 7);
-      IO::resetIOBit(LCD_E_PORT);
+      IO::resetIO(LCD_E_PORT);
       __nop();
       __nop();
       __nop();
-      IO::setIOBit(LCD_E_PORT);
+      IO::setIO(LCD_E_PORT);
       __nop();
       __nop();
       __nop();
-      IO::resetIOBit(LCD_E_PORT);
+      IO::resetIO(LCD_E_PORT);
 
       if (!busyFlag)
         break;

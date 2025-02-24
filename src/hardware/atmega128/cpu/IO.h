@@ -71,6 +71,17 @@ namespace IO
                 return *port;
         }
 
+        inline void setIO(volatile uint8_t* port, uint8_t mask)
+        {
+                *port |= mask;
+        }
+
+        inline void resetIO(volatile uint8_t* port, uint8_t mask)
+        {
+                *port &= ~mask;
+        }
+
+
         inline void setIOBit(volatile uint8_t* port, uint8_t bit)
         {
                 *port |= _BV(bit);

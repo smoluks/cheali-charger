@@ -9,7 +9,7 @@ SET(CWARN "-Wall")
 SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
 SET(COPT "-Os")
 SET(CINCS "")
-SET(CMCU "-mmcu=atmega32")
+SET(CMCU "-mmcu=atmega128")
 SET(CDEFS "-DF_CPU=20000000")
 
 SET(CXXEXTRA "-ffunction-sections -fdata-sections -fno-exceptions")

@@ -381,9 +381,8 @@ void AnalogInputs::printRealValue(Name name, uint8_t dig)
 }
 
 static inline uint32_t toHoursBasis(uint32_t accumulator) {
-    uint32_t retu = accumulator;
-    retu /= 1000000/TIMER_INTERRUPT_PERIOD_MICROSECONDS
-        * 3600/TIMER_SLOW_INTERRUPT_INTERVAL;
+    uint64_t retu = accumulator; //sum of all measurements during slow interrupt
+    retu = retu * TIMER_INTERRUPT_PERIOD_MICROSECONDS * TIMER_SLOW_INTERRUPT_INTERVAL / 3600000000; //value * us per value / us in hours
     return retu;
 }
 

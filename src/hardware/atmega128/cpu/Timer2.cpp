@@ -19,7 +19,6 @@
 #include "Hardware.h"
 #include "atomic.h"
 
-
 // time measurement - It uses atmega32/Timer2 to measure TIMER_INTERRUPT_PERIOD_MICROSECONDS
 
 ISR(TIMER2_COMP_vect)
@@ -27,21 +26,28 @@ ISR(TIMER2_COMP_vect)
     Time::callback();
 }
 
-
 void Time::initialize()
 {
-#if F_CPU != 16000000
-#error "F_CPU != 16000000 - not implemented"
+    TCCR2 = (1 << WGM21); // Clear Timer on Compare Match (CTC) Mode
+    TCNT2 = 0;
+
+#if F_CPU == 16000000 || F_CPU == 20000000
+#if F_CPU % (256 * TIMER_INTERRUPT_PERIOD_MICROSECONDS) != 0
+#error "F_CPU not divisible to prescaler values"
 #endif
-#if TIMER_INTERRUPT_PERIOD_MICROSECONDS != 500
-#error "TIMER_INTERRUPT_PERIOD_MICROSECONDS != 500 - not implemented"
+#if F_CPU / (256 * TIMER_INTERRUPT_PERIOD_MICROSECONDS) < 1
+#error "prescaler values too high"
+#endif
+#if F_CPU / (256 * TIMER_INTERRUPT_PERIOD_MICROSECONDS) > 255
+#error "prescaler values too low"
 #endif
 
-    TCCR2=(1<<WGM21);               //Clear Timer on Compare Match (CTC) Mode
-    TCCR2|=(1 << CS22);             //clk/64 (From prescaler)
+    TCCR2 |= (1 << CS22); // clk/256 (From prescaler)
+    OCR2 = (F_CPU / 256 / TIMER_INTERRUPT_PERIOD_MICROSECONDS) - 1;
 
-    TCNT2=0;
-    OCR2=TIMER_INTERRUPT_PERIOD_MICROSECONDS/4 - 1;
+#else
+#error "F_CPU not supported"
+#endif
 
-    TIMSK|=(1<<OCIE2);              //OCIE2: Timer/Counter2 Output Compare Match Interrupt Enable
+    TIMSK |= (1 << OCIE2); // OCIE2: Timer/Counter2 Output Compare Match Interrupt Enable
 }

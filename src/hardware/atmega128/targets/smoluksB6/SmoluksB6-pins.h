@@ -49,7 +49,10 @@
 #define DISCHARGE_VALUE_PIN     14
 #define SMPS_VALUE_PIN          14
 #define SMPS_DISABLE_PIN        15
-#define BUZZER_PIN              16
+
+#define BUZZER_PORT             &PORTB, PIN_0
+#define BUZZER_DDR              &DDRB, PIN_0
+#define BUZZER_PIN              &PINB, PIN_0
 
 // ----- LCD -----
 #define LCD_ENABLE_8BITMODE
@@ -58,14 +61,14 @@
 #define LCD_DATA_DDR           &DDRC
 #define LCD_DATA_PIN           &PINC
 
-#define LCD_RS_PORT            &PORTD, 7
-#define LCD_RS_DDR             &DDRD, 7
+#define LCD_RS_PORT            &PORTD, PIN_7
+#define LCD_RS_DDR             &DDRD, PIN_7
 
-#define LCD_RW_PORT            &PORTG, 1
-#define LCD_RW_DDR             &DDRG, 1
+#define LCD_RW_PORT            &PORTG, PIN_1
+#define LCD_RW_DDR             &DDRG, PIN_1
 
-#define LCD_E_PORT             &PORTG, 0
-#define LCD_E_DDR              &DDRG, 0
+#define LCD_E_PORT             &PORTG, PIN_0
+#define LCD_E_DDR              &DDRG, PIN_0
 
 // ----- Buttons -----
 #define BUTTON_STOP_PORT       &PORTB, 3
