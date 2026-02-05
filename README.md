@@ -16,10 +16,11 @@ Open-source hardware for cheali-charger!
 - UART and temperature sensor can be used at the same time
 - 4-pin UART connector with 3.3V power supply can be used for HC05 or another module
 - display brightness regulation (if I code it)
-- 
+  
 ![PCB front](/images/front.jpg)
 ![PCB back](/images/back.jpg)
 
 ## Build:
 - PlatformIO for VSCode
+  
 Not compatible with original cheali-charger now
