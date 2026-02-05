@@ -1,20 +1,23 @@
-This is my hardware for cheali-charger!
+Are you tired of IMAX B6 clones running on obscure controllers?
+Do you want to customize your charger?
+Now
+
+Open-source hardware for cheali-charger!
 ==========================
-Now done 40% 
- 
+
+## Features:
+- Atmega128, can drive the display using 8-bit port (much faster) and has more memory
+- 10A Output/input
+- 30V Max. output
+- External shunt for discharge
+- Precision voltage reference 0.1%
+- UART and temperature sensor can be used at the same time
+- 4-pin UART connector with 3.3V power supply can be used for HC05 or another module
+- display brightness regulation (if I code it)
+- 
 ![PCB front](/images/front.jpg)
 ![PCB back](/images/back.jpg)
 
-Features
---------
-- 10A Output/input
-- 30V Max.output
-- Connector for external load for discharge
-- Precision voltage reference 0.1%
-- UART and t sensor can be used at the same time, 3.3V power supply can be used for HC05 or another modules
-- display brightness regulation
-
-Specs
---------
-- CPU: ATmega128
-- full bus for display
+## Build:
+- PlatformIO for VSCode
+Not compatible with original cheali-charger now
