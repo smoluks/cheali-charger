@@ -8,9 +8,11 @@
 
 namespace Timer1
 {
+    void setOCR();    
     void initialize();
-    void disablePWM(char pin);
-    void setPWM(char pin, unsigned int duty);
+    void setChargerValue(uint16_t value);
+    void setDischargerValue(uint16_t value);
+    void disablePWM();
 };
 
 #endif //TIMER_1_H_

@@ -25,19 +25,22 @@
 
 #define F_CPU 20000000UL
 #define TIMER_INTERRUPT_PERIOD_MICROSECONDS 625 //Timer2 period
-#define TIMER_SLOW_INTERRUPT_INTERVAL       180 //This is prescaler between Timer2 period and slow interrupt (adc sum for ex.)
+#define TIMER_SLOW_INTERRUPT_INTERVAL       160 //This is prescaler between Timer2 period and slow interrupt (adc sum for ex.)
+
+#define ENABLE_LCD_BACKLIGHT
 
 #define MAX_CHARGE_V            ANALOG_VOLT(30.000)
 #define MAX_CHARGE_I            ANALOG_AMP(10.000)
 #define MAX_CHARGE_P            ANALOG_WATT(300.000)
 
 #define MAX_DISCHARGE_P         ANALOG_WATT(50.000)
-#define MAX_DISCHARGE_I         ANALOG_AMP(5.000)
+#define MAX_DISCHARGE_I         ANALOG_AMP(10.000)
 
 #define SMPS_UPPERBOUND_VALUE               TIMER1_PRECISION_PERIOD
 #define DISCHARGER_UPPERBOUND_VALUE         TIMER1_PRECISION_PERIOD
-#define ADC_KEY_BORDER 210
 
-#define ENABLE_BALANCER_PWR
+#define OUTPUT_VOLTAGE_MINUS_PIN
+
+//#define ENABLE_BALANCER_PWR
 
 #endif /* HARDWARE_CONFIG_H_ */

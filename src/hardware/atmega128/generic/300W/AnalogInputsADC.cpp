@@ -21,15 +21,21 @@
 #include <avr/io.h>
 #include "atomic.h"
 #include "Hardware.h"
+#include "SMPS_PID.h"
 #include "Utils.h"
 #include "memory.h"
-#include "IO.h"
 #include "Settings.h"
+#include "Timer0.h"
 #include "AnalogInputsPrivate.h"
+#include "IO.h"
+#include "SMPS.h"
+#include "Discharger.h"
 
-//#define ENABLE_DEBUG
+// we need ProgramData::battery.enable_externT
+#include "ProgramData.h"
+
+// #define ENABLE_DEBUG
 #include "debug.h"
-
 #ifdef ENABLE_DEBUG
 #define MAX_DEBUG_DATA 160
 uint16_t adcDebugData[MAX_DEBUG_DATA];
@@ -57,36 +63,35 @@ void LogDebug_run()
  * program flow: see conversionDone()
  */
 
+#define ADC_I_SMPS_PER_ROUND 4
+
+#ifdef ENABLE_SIMPLIFIED_VB0_VB2_CIRCUIT
+#define ENABLE_ADC_MUX_CAPACITOR_DISCHARGE
+// discharge mux ADC capacitor on Vb6
+#define ADC_CAPACITOR_DISCHARGE_ADDRESS MADDR_V_BALANSER6
+#endif
+
 namespace AnalogInputsADC
 {
-
     void setupNextInput();
 
     void initialize()
     {
+        IO::resetIO(MUX_PORT, MUX_ADR0_PORT | MUX_ADR1_PORT | MUX_ADR2_PORT);
+        IO::setIO(MUX_DDR, MUX_ADR0_PORT | MUX_ADR1_PORT | MUX_ADR2_PORT);
 
-        IO::pinMode(MUX0_Z_D_PIN, INPUT);
-        IO::pinMode(MUX1_Z_D_PIN, INPUT);
-        IO::digitalWrite(MUX0_Z_D_PIN, 0);
-        IO::digitalWrite(MUX1_Z_D_PIN, 0);
-
-        IO::pinMode(MUX_ADR0_PIN, OUTPUT);
-        IO::pinMode(MUX_ADR1_PIN, OUTPUT);
-        IO::pinMode(MUX_ADR2_PIN, OUTPUT);
-
-        //ADC Auto Trigger Source - Free Running mode
-
-        //ADEN: ADC Enable
-        //ADFR: ADC Free Running Select
-        //ADIE: ADC Interrupt Enable
-        //ADPS2:0: ADC Prescaler Select Bits = 16MHz/ 64 = 250kHz (above the recommended value)
-        /* atmega32 datasheet:
+        // ADC Auto Trigger Source - Free Running mode
+        // ADEN: ADC Enable
+        // ADFR: ADC Free Running Select
+        // ADIE: ADC Interrupt Enable
+        // ADPS2:0: ADC Prescaler Select Bits = 20MHz/ 64 = 312kHz (TODO: above the recommended value)
+        /* atmega datasheet:
         By default, the successive approximation circuitry requires an input clock frequency between
         50kHz and 200kHz to get maximum resolution. If a lower resolution than 10 bits is needed, the
         input clock frequency to the ADC can be higher than 200kHz to get a higher sample rate. */
-        ADCSRA = _BV(ADEN) | _BV(ADFR) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1);
+        ADCSRA = _BV(ADEN) | _BV(ADFR) | _BV(ADIF) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1);
 
-        //start conversion
+        // start conversion
         ADCSRA |= _BV(ADSC);
     }
 
@@ -95,43 +100,27 @@ namespace AnalogInputsADC
         int8_t mux;
         uint8_t adc;
         AnalogInputs::Name ai_name;
-        uint8_t key;
         uint8_t noise;
     };
 
 #define ADC_STANDARD_PER_ROUND 2
 #define NO_NOISE 0
 
-//reorder multiplexer addresses based on MUX_ADR?_PIN to simplify getPortBAddress()
-#define GET_BIT(x, nr) (((x) & (1 << nr)) >> nr)
-#define MADDR_REORDER(x) ((GET_BIT(x, 0) << (MUX_ADR0_PIN - 1)) + (GET_BIT(x, 1) << (MUX_ADR1_PIN - 1)) + (GET_BIT(x, 2) << (MUX_ADR2_PIN - 1)))
-
     const adc_correlation order_analogInputs_on[] PROGMEM = {
-        {-1, OUTPUT_VOLTAGE_PLUS_PIN, AnalogInputs::Vout_plus_pin, 0, 10},
-        {MADDR_REORDER(MADDR_V_OUTMUX), MUX0_Z_A_PIN, AnalogInputs::VoutMux, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_BALANSER1), MUX1_Z_A_PIN, AnalogInputs::Vb1_pin, 0, NO_NOISE},
-        {-1, OUTPUT_VOLTAGE_MINUS_PIN, AnalogInputs::Vout_minus_pin, 0, 10},
-        {MADDR_REORDER(MADDR_T_INTERN), MUX0_Z_A_PIN, AnalogInputs::Tintern, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_BALANSER2), MUX1_Z_A_PIN, AnalogInputs::Vb2_pin, 0, NO_NOISE},
-        {-1, SMPS_CURRENT_PIN, AnalogInputs::Ismps, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_IN), MUX0_Z_A_PIN, AnalogInputs::Vin, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_BALANSER3), MUX1_Z_A_PIN, AnalogInputs::Vb3_pin, 0, NO_NOISE},
-        {-1, DISCHARGE_CURRENT_PIN, AnalogInputs::Idischarge, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_T_EXTERN), MUX0_Z_A_PIN, AnalogInputs::Textern, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_BALANSER4), MUX1_Z_A_PIN, AnalogInputs::Vb4_pin, 0, NO_NOISE},
-        {-1, OUTPUT_VOLTAGE_PLUS_PIN, AnalogInputs::Vout_plus_pin, 0, 10},
-        {MADDR_REORDER(MADDR_V_BALANSER5), MUX1_Z_A_PIN, AnalogInputs::Vb5_pin, 0, NO_NOISE},
-        {-1, OUTPUT_VOLTAGE_MINUS_PIN, AnalogInputs::Vout_minus_pin, 0, 10},
-        {MADDR_REORDER(MADDR_V_BALANSER6), MUX1_Z_A_PIN, AnalogInputs::Vb6_pin, 0, NO_NOISE},
-#if MAX_BALANCE_CELLS > 6
-        {-1, SMPS_CURRENT_PIN, AnalogInputs::Ismps, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_BALANSER7), MUX1_Z_A_PIN, AnalogInputs::Vb7_pin, 0, NO_NOISE},
-        {-1, DISCHARGE_CURRENT_PIN, AnalogInputs::Idischarge, 0, NO_NOISE},
-        {MADDR_REORDER(MADDR_V_BALANSER8), MUX1_Z_A_PIN, AnalogInputs::Vb8_pin, 0, NO_NOISE},
-#else
-        {-1, SMPS_CURRENT_PIN, AnalogInputs::Ismps, 0, NO_NOISE},
-        {-1, DISCHARGE_CURRENT_PIN, AnalogInputs::Idischarge, 0, NO_NOISE},
-#endif
+        // commutator port output, adc pin, enum name, keyboard?, noise
+
+        {MUX_V1_CH, ADC_4051_CH, AnalogInputs::Vb1_pin, NO_NOISE},
+        {MUX_V2_CH, ADC_4051_CH, AnalogInputs::Vb2_pin, NO_NOISE},
+        {MUX_V3_CH, ADC_4051_CH, AnalogInputs::Vb3_pin, NO_NOISE},
+        {MUX_V4_CH, ADC_4051_CH, AnalogInputs::Vb4_pin, NO_NOISE},
+        {MUX_V5_CH, ADC_4051_CH, AnalogInputs::Vb5_pin, NO_NOISE},
+        {MUX_V6_CH, ADC_4051_CH, AnalogInputs::Vb6_pin, NO_NOISE},
+        {-1, ADC_VIN_CH, AnalogInputs::Vin, NO_NOISE},
+        {-1, ADC_TEMP_EXT_CH, AnalogInputs::Textern, NO_NOISE},
+        {-1, ADC_BAT_PLUS_CH, AnalogInputs::Vout_plus_pin, 10},
+        {-1, ADC_BAT_MINUS_CH, AnalogInputs::Vout_minus_pin, 10},
+        {-1, ADC_CHRG_I_CH, AnalogInputs::Ismps, NO_NOISE},
+        {-1, ADC_DISC_I_CH, AnalogInputs::Idischarge, NO_NOISE},
     };
 
     inline uint8_t nextInput(uint8_t i)
@@ -140,41 +129,43 @@ namespace AnalogInputsADC
             i = 0;
         return i;
     }
+
     adc_correlation adc_input;
     adc_correlation adc_input_next;
     static volatile uint8_t g_addSumToInput = 0;
-    static volatile uint8_t g_input_ = 0;
-    static volatile uint8_t g_adcBurstCount_ = 0;
 
-    static uint8_t adc_keyboard_;
+    // static uint8_t adc_keyboard_;
 
-    inline void setADC(uint8_t pin)
+    inline void setADCChannel(uint8_t pin)
     {
-        // ADLAR - ADC Left Adjust Result
-        ADMUX = (EXTERNAL << 6) | _BV(ADLAR) | pin;
+        // TODO: use differential input for Vbat?
+        //  ADLAR - ADC Left Adjust Result
+        //  REFS1:0 = 00 - AREF, Internal Vref turned off
+        ADMUX = _BV(ADLAR) | pin;
     }
 
-    inline uint8_t getPortBAddress(uint8_t address)
+    inline void setCommutator(uint8_t mux)
     {
-        return (PORTB & 0x1f) | (address & 7) << 5;
+        IO::resetIO(MUX_PORT, MUX_ADR0_PORT | MUX_ADR1_PORT | MUX_ADR2_PORT);
+        IO::setIO(MUX_PORT, mux);
     }
 
-    void processConversion(uint16_t v)
+    void processConversion(uint16_t adc_raw_value)
     {
         AnalogInputs::Name name = adc_input.ai_name;
-        if (name != AnalogInputs::VirtualInputs)
+        // if (name != AnalogInputs::VirtualInputs)
+        //{
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-            {
-                AnalogInputs::i_adc_[name] = v;
-            }
-            if (g_addSumToInput)
-                AnalogInputs::i_avrSum_[name] += v;
+            AnalogInputs::i_adc_[name] = adc_raw_value;
         }
-        else
+        if (g_addSumToInput)
+            AnalogInputs::i_avrSum_[name] += adc_raw_value;
+        //}
+        /*else
         {
             uint8_t key = adc_input.key;
-            uint8_t high = v >> 8;
+            uint8_t high = adc_raw_value >> 8;
 
             if (high < ADC_KEY_BORDER)
             {
@@ -184,7 +175,7 @@ namespace AnalogInputsADC
             {
                 adc_keyboard_ &= ~key;
             }
-        }
+        }*/
     }
 
     void finalizeMeasurement()
@@ -202,11 +193,12 @@ namespace AnalogInputsADC
                 AnalogInputs::i_avrSum_[AnalogInputs::Vout_minus_pin] /= ADC_STANDARD_PER_ROUND;
                 AnalogInputs::i_avrSum_[AnalogInputs::Idischarge] /= ADC_STANDARD_PER_ROUND;
             }
-            //TODO: maybe intterruptFinalizeMeasurement should be removed
+            // TODO: maybe intterruptFinalizeMeasurement should be removed
             AnalogInputs::intterruptFinalizeMeasurement();
         }
     }
 
+    // Enable pull-up resistor as noise for time time(i dont understand this)
     void addAdcNoise()
     {
         if (!settings.adcNoise)
@@ -215,10 +207,10 @@ namespace AnalogInputsADC
             return;
 
         uint8_t adcbit = 1 << adc_input_next.adc;
-        uint8_t time = AnalogInputs::i_avrCount_ & 15;
+        uint8_t time = AnalogInputs::i_avrCount_ & 0x0F;
         time += adc_input_next.noise;
 
-        //we only add positive noise
+        // we only add positive noise
 
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
@@ -234,6 +226,8 @@ namespace AnalogInputsADC
 #error "ANALOG_INPUTS_ADC_BURST_COUNT < 2"
 #endif
 
+    static volatile uint8_t _currentBurstNumber = 0; // state machine variable
+
     void conversionDone()
     {
         uint16_t v;
@@ -242,8 +236,8 @@ namespace AnalogInputsADC
         high = ADCH;
         v = (high << 8) | low;
 
-        //ignore first 3 measurements, ADC channel needs to stabilize
-        if (g_adcBurstCount_ > 2)
+        // ignore first 3 measurements, ADC channel needs to stabilize
+        if (_currentBurstNumber > 2)
         {
             processConversion(v);
         }
@@ -268,7 +262,7 @@ namespace AnalogInputsADC
         }
 #endif
 
-        switch (g_adcBurstCount_++)
+        switch (_currentBurstNumber++)
         {
         case 0:
             /* set new mux address */
@@ -276,10 +270,16 @@ namespace AnalogInputsADC
             {
                 ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                 {
-                    PORTB = getPortBAddress(adc_input_next.mux);
+                    // switch analog commutator
+                    setCommutator(adc_input_next.mux);
                 }
             }
+            break;
 
+        case ANALOG_INPUTS_ADC_BURST_COUNT - 3:
+            /* update PID if necessary */
+            if (adc_input.ai_name == AnalogInputs::Ismps)
+                SMPS_PID::update();
             break;
 
 #ifdef ENABLE_ANALOG_INPUTS_ADC_NOISE
@@ -290,20 +290,26 @@ namespace AnalogInputsADC
 
         case ANALOG_INPUTS_ADC_BURST_COUNT + 2:
             /* set next adc input */
-            setADC(adc_input_next.adc);
+            setADCChannel(adc_input_next.adc);
             /* switch to new input */
-            g_adcBurstCount_ = 0;
+            _currentBurstNumber = 0;
             setupNextInput();
         }
     }
 
+    static volatile uint8_t _currentInput = 0;
     void setupNextInput()
     {
-        g_input_ = nextInput(g_input_);
+        _currentInput = nextInput(_currentInput);
         adc_input = adc_input_next;
-        pgm::read(adc_input_next, &order_analogInputs_on[nextInput(g_input_)]);
+        pgm::read(adc_input_next, &order_analogInputs_on[nextInput(_currentInput)]);
 
-        if (g_input_ == 0)
+        /*if ((!ProgramData::battery.enable_externT) && adc_input_next.mux == MADDR_T_EXTERN)
+        {
+            adc_input_next.mux = MADDR_V_BALANSER6;
+        }*/
+
+        if (_currentInput == 0)
         {
             finalizeMeasurement();
             g_addSumToInput = AnalogInputs::i_avrCount_ > 0;

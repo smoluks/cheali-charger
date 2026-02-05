@@ -40,7 +40,7 @@ namespace ADCKeyboardAnalyzer {
 
 void run() {
     SerialLog::powerOn();
-    AnalogInputs::powerOn();
+    AnalogInputs::powerOn(true);
     Balancer::powerOn();
 
     while(1) {

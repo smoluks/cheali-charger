@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+//This is the wrapper with fixed name for core
 #ifndef HARDWARE_H_
 #define HARDWARE_H_
 

@@ -93,7 +93,7 @@ static void printItem(uint8_t index) {
 
 void run() {
     SerialLog::powerOn();
-    AnalogInputs::powerOn();
+    AnalogInputs::powerOn(true);
     Balancer::powerOn();
 
     Menu::initialize(sizeOfArray(voltageMenu));
@@ -112,7 +112,7 @@ void run() {
             SerialLog::powerOff();
             SettingsMenu::run();
             SerialLog::powerOn();
-            AnalogInputs::powerOn();
+            AnalogInputs::powerOn(true);
             Balancer::powerOn();
         }
     } while(true);

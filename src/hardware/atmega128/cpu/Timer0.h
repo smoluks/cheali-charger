@@ -18,12 +18,14 @@
 #ifndef TIMER_0_H_
 #define TIMER_0_H_
 
+#include "IO.h"
 
 #define TIMER0_INTERRUPT_PERIOD_MICROSECONDS     400
 #define TIMER0_FROM_MICROSECONDS(x) ((x)/4-1)
 
 namespace Timer0 {
     void initialize();
+    void setBuzzer(uint8_t val);
 };
 
 

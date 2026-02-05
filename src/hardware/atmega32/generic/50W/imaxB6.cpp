@@ -50,7 +50,6 @@ void hardware::setBalancerOutput(bool enable)
     IO::pinMode(BALANCER4_LOAD_PIN, mode);
     IO::pinMode(BALANCER5_LOAD_PIN, mode);
     IO::pinMode(BALANCER6_LOAD_PIN, mode);
-
 }
 
 

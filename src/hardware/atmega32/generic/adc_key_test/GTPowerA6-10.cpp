@@ -69,7 +69,7 @@ void hardware::initialize()
     setVoutCutoff(MAX_CHARGE_V);
 }
 
-void hardware::setLCDBacklight(uint8_t val)
+void hardware::setBacklightParams(uint8_t val)
 {
     uint32_t v1,v2;
     v1  = LCD_BACKLIGHT_MAX;

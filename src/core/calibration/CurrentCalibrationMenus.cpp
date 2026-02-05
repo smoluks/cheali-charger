@@ -34,6 +34,7 @@
 #include "Balancer.h"
 #include "memory.h"
 #include "EditMenu.h"
+#include <SMPS_PID.h>
 
 namespace Calibration {
 
@@ -93,7 +94,7 @@ static void powerOnCurrent()
 {
     if(gName_ == AnalogInputs::Ismps) {
         SMPS::powerOn();
-        hardware::setVoutCutoff(MAX_CHARGE_V);
+        SMPS_PID::setVoutCutoff(MAX_CHARGE_V);
     } else {
         Discharger::powerOn();
     }
@@ -111,7 +112,7 @@ static void currentCalibration(uint8_t point)
     AnalogInputs::CalibrationPoint p;
     bool save = false;
 
-    AnalogInputs::powerOn();
+    AnalogInputs::powerOn(true);
     if(testVout(false)) {
 
         getCalibrationPoint(pSet, gNameSet_, point);

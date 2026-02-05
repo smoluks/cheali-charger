@@ -74,7 +74,7 @@ bool Balancer::isCalibrationRequired() {
 
 void Balancer::powerOn()
 {
-    hardware::setBalancerOutput(true);
+    hardware::enableBalancerOutput();
 
     for(uint8_t i = 0; i < MAX_BALANCE_CELLS; i++) {
         AnalogInputs::ValueType vi = getV(i);
@@ -130,7 +130,7 @@ void Balancer::endBalancing()
 void Balancer::powerOff()
 {
     endBalancing();
-    hardware::setBalancerOutput(false);
+    hardware::disableBalancerOutput();
 }
 
 

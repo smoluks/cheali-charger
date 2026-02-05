@@ -135,6 +135,9 @@ namespace Menu {
         return button;
     }
 
+    // return: 0 - options
+    //         1..n - program
+    //         -1 - menu
     int8_t run(bool alwaysRefresh) {
         uint8_t key;
         render_ = true;

@@ -278,7 +278,7 @@ void sendChannel2(bool adc)
 
     uint16_t pidV=0;
 #ifdef ENABLE_GET_PID_VALUE
-    pidV = hardware::getPIDValue();
+    pidV = SMPS_PID::getPIDValue();
 #endif
     printUInt(pidV);
     printD();

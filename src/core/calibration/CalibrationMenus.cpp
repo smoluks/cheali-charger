@@ -210,7 +210,7 @@ BALANCER_PORTS_GT_6(
 void voltageCalibration()
 {
     calibrationPoint = 1;
-    AnalogInputs::powerOn();
+    AnalogInputs::powerOn(true);
     if(testVout(true)) {
         runCalibrationMenu(editVoltageData, voltageNameEdited, voltageNameSaveTo);
     }

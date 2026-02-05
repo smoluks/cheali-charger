@@ -141,10 +141,10 @@ inline uint8_t nextInput(uint8_t i) {
 adc_correlation adc_input;
 adc_correlation adc_input_next;
 static uint8_t g_addSumToInput = 0;
-static uint8_t g_adcBurstCount_ = 0;
+static uint8_t _currentBurstNumber = 0;
 
 
-inline void setADC(uint8_t pin) {
+inline void setADCChannel(uint8_t pin) {
     // ADLAR - ADC Left Adjust Result
     ADMUX = (EXTERNAL << 6)
             | _BV(ADLAR)
@@ -217,7 +217,7 @@ void conversionDone()
     v = (high << 8) | low;
 
     //ignore first 2 measurements, ADC channel needs to stabilize
-    if(g_adcBurstCount_ > 1) {
+    if(_currentBurstNumber > 1) {
         processConversion(v);
     }
 
@@ -230,7 +230,7 @@ void conversionDone()
     }
 #endif
 
-    switch(g_adcBurstCount_++) {
+    switch(_currentBurstNumber++) {
 #ifdef ENABLE_ADC_MUX_CAPACITOR_DISCHARGE
     case 0:
         /* start adc capacitor discharge */
@@ -276,9 +276,9 @@ void conversionDone()
 
     case ANALOG_INPUTS_ADC_BURST_COUNT+1:
         /* set next adc input */
-        setADC(adc_input_next.adc);
+        setADCChannel(adc_input_next.adc);
         /* switch to new input */
-        g_adcBurstCount_ = 0;
+        _currentBurstNumber = 0;
         setupNextInput();
     }
 }

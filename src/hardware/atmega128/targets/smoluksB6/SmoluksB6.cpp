@@ -16,135 +16,249 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Hardware.h"
+#include "SmoluksB6.h"
 #include "AnalogInputsADC.h"
 #include "IO.h"
 #include "Timer0.h"
 #include "LiquidCrystal.h"
+#include "atomic.h"
 
 #ifndef PINS_H_
 #error pins not defined (include *pins.h header in your HardwareConfig.h)
 #endif
+#include <SMPS_PID.h>
+#include <AnalogInputs.h>
 
-uint8_t hardware::getKeyPressed()
+namespace hardware
 {
-    return   (IO::readIOBit(BUTTON_STOP_PIN) ? 0 : BUTTON_STOP)
-            | (IO::readIOBit(BUTTON_DEC_PIN)  ? 0 : BUTTON_DEC)
-            | (IO::readIOBit(BUTTON_INC_PIN)  ? 0 : BUTTON_INC)
-            | (IO::readIOBit(BUTTON_START_PIN)? 0 : BUTTON_START);
-}
+    bool isBacklightEnabled = false;
+    uint16_t backlightCurrentTime = 0;
+    uint16_t backlightTime = 255;
 
-void hardware::initializePins()
-{
-    setBatteryOutput(false);
-    setFan(false);
-    setBuzzer(0);
-    setBalancer(0);
+    void doSlowInterrupt()
+    {
+        // Backlight timeout
+        if (isBacklightEnabled)
+        {
+            if (backlightCurrentTime >= backlightTime)
+            {
+                disableBacklight();
+            }
+            else
+                backlightCurrentTime++;
+        }
+    }
 
-    IO::pinMode(BACKLIGHT_PIN, OUTPUT);
-    IO::pinMode(OUTPUT_DISABLE_PIN, OUTPUT);
-    IO::pinMode(FAN_PIN, OUTPUT);
+    uint8_t getKeyPressed()
+    {
+        return (IO::readIO(BUTTON_STOP_PIN) ? 0 : BUTTON_STOP) |
+               (IO::readIO(BUTTON_DEC_PIN) ? 0 : BUTTON_DEC) |
+               (IO::readIO(BUTTON_INC_PIN) ? 0 : BUTTON_INC) |
+               (IO::readIO(BUTTON_START_PIN) ? 0 : BUTTON_START);
+    }
 
-    IO::pinMode(BALANCER1_LOAD_PIN, OUTPUT);
-    IO::pinMode(BALANCER2_LOAD_PIN, OUTPUT);
-    IO::pinMode(BALANCER3_LOAD_PIN, OUTPUT);
-    IO::pinMode(BALANCER4_LOAD_PIN, OUTPUT);
-    IO::pinMode(BALANCER5_LOAD_PIN, OUTPUT);
-    IO::pinMode(BALANCER6_LOAD_PIN, OUTPUT);
+    // before enabling interrupts
+    void initializePins()
+    {
+        // power
+        IO::setIO(BATTERY_DISABLE_PORT);
+        IO::setIO(BATTERY_DISABLE_DDR);
+
+        IO::setIO(DISCHARGER_DISABLE_PORT);
+        IO::setIO(DISCHARGER_DISABLE_DDR);
+
+        IO::setIO(SMPS_DISABLE_PORT);
+        IO::setIO(SMPS_DISABLE_DDR);
+
+        IO::resetIO(SMPS_UP_PORT);
+        IO::setIO(SMPS_UP_DDR);
+
+        IO::resetIO(SMPS_DOWN_PORT);
+        IO::setIO(SMPS_DOWN_DDR);
+
+        // buttons
+        IO::resetIO(BUTTON_STOP_DDR);
+        IO::setIO(BUTTON_STOP_PORT);
+        IO::resetIO(BUTTON_DEC_DDR);
+        IO::setIO(BUTTON_DEC_PORT);
+        IO::resetIO(BUTTON_INC_DDR);
+        IO::setIO(BUTTON_INC_PORT);
+        IO::resetIO(BUTTON_START_DDR);
+        IO::setIO(BUTTON_START_PORT);
+
+        // balancer
+        IO::resetIO(BALANCER_CELL1_PORT);
+        IO::setIO(BALANCER_CELL1_DDR);
+        IO::resetIO(BALANCER_CELL2_PORT);
+        IO::setIO(BALANCER_CELL2_DDR);
+        IO::resetIO(BALANCER_CELL3_PORT);
+        IO::setIO(BALANCER_CELL3_DDR);
+        IO::resetIO(BALANCER_CELL4_PORT);
+        IO::setIO(BALANCER_CELL4_DDR);
+        IO::resetIO(BALANCER_CELL5_PORT);
+        IO::setIO(BALANCER_CELL5_DDR);
+        IO::resetIO(BALANCER_CELL6_PORT);
+        IO::setIO(BALANCER_CELL6_DDR);
+
 #if MAX_BALANCE_CELLS > 6
-    IO::pinMode(BALANCER7_LOAD_PIN, OUTPUT);
-    IO::pinMode(BALANCER8_LOAD_PIN, OUTPUT);
+        IO::pinMode(BALANCER7_LOAD_PIN, OUTPUT);
+        IO::pinMode(BALANCER8_LOAD_PIN, OUTPUT);
 #endif
-
 #ifdef ENABLE_BALANCER_PWR
-    IO::pinMode(BALANCER_PWR_ENABLE_PIN, OUTPUT);
+        IO::pinMode(BALANCER_PWR_ENABLE_PIN, OUTPUT);
 #endif
 
-    IO::pinMode(SMPS_VALUE_PIN, OUTPUT);
-    IO::pinMode(SMPS_DISABLE_PIN, OUTPUT);
-    IO::pinMode(DISCHARGE_VALUE_PIN, OUTPUT);
-    IO::pinMode(DISCHARGE_DISABLE_PIN, OUTPUT);
+        //
+        IO::resetIO(FAN_PORT);
+        IO::setIO(FAN_DDR);
+
+        IO::resetIO(BUZZER_PORT);
+        IO::setIO(BUZZER_DDR);
+
+        IO::setIO(BACKLIGHT_DDR);
+        enableBacklight();
+    }
+
+    // after enabling interrupts
+    void initialize()
+    {
+        LiquidCrystal::begin(LCD_COLUMNS, LCD_LINES);
+        Timer0::initialize();
+        Timer1::initialize();
+        AnalogInputsADC::initialize();
+        SMPS_PID::setVoutCutoff(MAX_CHARGE_V);
+
+        //не коммитить
+        enableChargerOutput();
+    }
+
+    //-----called from Monitor-----
+    inline void enableFan()
+    {
+        IO::setIO(FAN_PORT);
+    }
+
+    inline void disableFan()
+    {
+        IO::resetIO(FAN_PORT);
+    }
+
+    //-----moved to Timer0-----
+    /* void setBuzzer(bool enable)
+    {
+        IO::digitalWrite(FAN_PIN, enable);
+    } */
+
+    void disableBacklight()
+    {
+        // IO::resetIO(BACKLIGHT_PORT);
+        isBacklightEnabled = false;
+    }
+
+    //-----called from here and Keyboard-----
+    bool enableBacklight()
+    {
+        if (isBacklightEnabled)
+        {
+            backlightCurrentTime = 0;
+            return false;
+        }
+
+        IO::setIO(BACKLIGHT_PORT);
+        isBacklightEnabled = true;
+        backlightCurrentTime = 0;
+        return true;
+    }
+
+    //-----called from Settings-----
+    void setBacklightParams(uint8_t value, int8_t time_in_seconds)
+    {
+        backlightTime = time_in_seconds * (1000000 / TIMER_INTERRUPT_PERIOD_MICROSECONDS / TIMER_SLOW_INTERRUPT_INTERVAL); // time_in_seconds * interrupt freq
+
+        // if(val)
+        // IO::setIO(BACKLIGHT_PORT);
+        // else
+        //     IO::resetIO(BACKLIGHT_PORT);
+
+        // uint32_t v1,v2;
+        // v1  = LCD_BACKLIGHT_MAX;
+        // v1 *= val;
+        // v2  = LCD_BACKLIGHT_MIN;
+        // v2 *= 100 - val;
+        // 1+=v2;
+        // v1/=100;
+        // Timer1::setPWM(BACKLIGHT_PIN, v1);
+    }
+
+    //-----called from SMPS-----
+    inline void enableChargerOutput()
+    {
+        IO::setIO(DISCHARGER_DISABLE_PORT);
+
+        SMPS_PID::disablePID();
+        SMPS_PID::init(AnalogInputs::getRealValue(AnalogInputs::Vin), AnalogInputs::getRealValue(AnalogInputs::Vout_plus_pin));
+
+        IO::resetIO(SMPS_DISABLE_PORT);
+    }
+
+    void disableChargerOutput()
+    {
+        IO::setIO(DISCHARGER_DISABLE_PORT);
+        IO::setIO(SMPS_DISABLE_PORT);
+
+        SMPS_PID::disablePID();
+    }
     
-    IO::resetIOBit(BUTTON_STOP_DDR);
-    IO::setIOBit(BUTTON_STOP_PORT);
-    IO::resetIOBit(BUTTON_DEC_DDR);
-    IO::setIOBit(BUTTON_DEC_PORT);
-    IO::resetIOBit(BUTTON_INC_DDR);
-    IO::setIOBit(BUTTON_INC_PORT);
-    IO::resetIOBit(BUTTON_START_DDR);
-    IO::setIOBit(BUTTON_START_PORT);
-}
+    //-----called from Discharger-----
+    void enableDischargerOutput()
+    {   
+        IO::setIO(SMPS_DISABLE_PORT);
+        IO::resetIO(DISCHARGER_DISABLE_PORT);
+    }
 
-void hardware::initialize()
-{
-    LiquidCrystal::begin(LCD_COLUMNS, LCD_LINES);
-    Timer0::initialize();
-    Timer1::initialize();
-    AnalogInputsADC::initialize();
-    setVoutCutoff(MAX_CHARGE_V);
-}
+    void disableDischargerOutput()
+    {
+        IO::setIO(DISCHARGER_DISABLE_PORT);
+    }
 
-void hardware::setLCDBacklight(uint8_t val)
-{
-    uint32_t v1,v2;
-    v1  = LCD_BACKLIGHT_MAX;
-    v1 *= val;
-    v2  = LCD_BACKLIGHT_MIN;
-    v2 *= 100 - val;
-    v1+=v2;
-    v1/=100;
-    Timer1::setPWM(BACKLIGHT_PIN, v1);
-}
+     //-----called from AnalogInputs-----
+    void setBatteryOutput(bool enable)
+    {
+        if (enable)
+            IO::resetIO(BATTERY_DISABLE_PORT);
+        else
+        {
+            IO::setIO(BATTERY_DISABLE_PORT);
+            IO::setIO(DISCHARGER_DISABLE_PORT);
+            IO::setIO(SMPS_DISABLE_PORT);
+        }
 
-void hardware::setFan(bool enable)
-{
-    IO::digitalWrite(FAN_PIN, enable);
-}
-
-void hardware::setBatteryOutput(bool enable)
-{
-    IO::digitalWrite(OUTPUT_DISABLE_PIN, !enable);
 #ifdef ENABLE_BALANCER_PWR
-    IO::digitalWrite(BALANCER_PWR_ENABLE_PIN, enable);
+        IO::digitalWrite(BALANCER_PWR_ENABLE_PIN, enable);
 #endif
-    if(!enable) {
-        setChargerOutput(false);
-        setDischargerOutput(false);
+    }
+
+    //-----called from Balancer-----
+    void enableBalancerOutput()
+    {
+    }
+
+    void disableBalancerOutput()
+    {
+    }
+
+    void setBalancer(uint8_t bitmask)
+    {
+        (bitmask & 1) ? IO::setIO(BALANCER_CELL1_PORT) : IO::resetIO(BALANCER_CELL1_PORT);
+        (bitmask & 2) ? IO::setIO(BALANCER_CELL2_PORT) : IO::resetIO(BALANCER_CELL2_PORT);
+        (bitmask & 4) ? IO::setIO(BALANCER_CELL3_PORT) : IO::resetIO(BALANCER_CELL3_PORT);
+        (bitmask & 8) ? IO::setIO(BALANCER_CELL4_PORT) : IO::resetIO(BALANCER_CELL4_PORT);
+        (bitmask & 16) ? IO::setIO(BALANCER_CELL5_PORT) : IO::resetIO(BALANCER_CELL5_PORT);
+        (bitmask & 32) ? IO::setIO(BALANCER_CELL6_PORT) : IO::resetIO(BALANCER_CELL6_PORT);
+
+#if MAX_BALANCE_CELLS > 6
+        IO::digitalWrite(BALANCER7_LOAD_PIN, bitmask & 64);
+        IO::digitalWrite(BALANCER8_LOAD_PIN, bitmask & 128);
+#endif
     }
 }
-void hardware::setChargerOutput(bool enable)
-{
-    IO::digitalWrite(SMPS_DISABLE_PIN, !enable);
-}
-void hardware::setDischargerOutput(bool enable)
-{
-    IO::digitalWrite(DISCHARGE_DISABLE_PIN, !enable);
-}
-
-void hardware::setChargerValue(uint16_t value)
-{
-    Timer1::setPWM(SMPS_VALUE_PIN, value);
-}
-void hardware::setDischargerValue(uint16_t value)
-{
-    Timer1::setPWM(DISCHARGE_VALUE_PIN, value);
-}
-
-void hardware::setBalancer(uint8_t v)
-{
-    IO::digitalWrite(BALANCER1_LOAD_PIN, v&1);
-    IO::digitalWrite(BALANCER2_LOAD_PIN, v&2);
-    IO::digitalWrite(BALANCER3_LOAD_PIN, v&4);
-    IO::digitalWrite(BALANCER4_LOAD_PIN, v&8);
-    IO::digitalWrite(BALANCER5_LOAD_PIN, v&16);
-    IO::digitalWrite(BALANCER6_LOAD_PIN, v&32);
-#if MAX_BALANCE_CELLS > 6
-    IO::digitalWrite(BALANCER7_LOAD_PIN, v&64);
-    IO::digitalWrite(BALANCER8_LOAD_PIN, v&128);
-#endif
-}
-
-void hardware::setBalancerOutput(bool enable)
-{
-}
-

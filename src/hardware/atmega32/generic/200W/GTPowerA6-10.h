@@ -34,7 +34,7 @@ namespace hardware {
     void initialize();
     uint8_t getKeyPressed();
     void delay(uint16_t t);
-    void setLCDBacklight(uint8_t val);
+    void setBacklightParams(uint8_t val);
     void setBuzzer(uint8_t val);
     void setBatteryOutput(bool enable);
     void setChargerOutput(bool enable);

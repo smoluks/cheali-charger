@@ -192,7 +192,7 @@ void Program::run(ProgramType prog)
 
     programState = Info;
     SerialLog::powerOn();
-    AnalogInputs::powerOn();
+    AnalogInputs::powerOn(true);
 
     if(startInfo()) {
         programState = InProgress;

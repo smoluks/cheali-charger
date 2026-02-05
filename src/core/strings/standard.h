@@ -92,7 +92,8 @@ namespace ProgramData {
 
 namespace SettingsMenu {
     //settings menu
-    STRING(backlight,   "backlight:");
+    STRING(backlightLevel,   "BL level:");
+    STRING(backlightTime,   "BL time:");
     STRING(fanOn,       "fan on:");
     STRING(fanTempOn,   "|fan T on:");
     STRING(dischOff,    "disch off:");

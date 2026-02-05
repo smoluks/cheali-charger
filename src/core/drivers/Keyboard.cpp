@@ -77,6 +77,9 @@ uint8_t Keyboard::getPressedWithDelay()
                 inState_ = 0;
                 if(key != BUTTON_NONE) {
                     Buzzer::soundKeyboard();
+
+                    if(hardware::enableBacklight())
+                        return BUTTON_NONE;
                 }
                 return key;
             }

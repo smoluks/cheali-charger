@@ -64,6 +64,7 @@ namespace Time
             slowInterval = TIMER_SLOW_INTERRUPT_INTERVAL;
             AnalogInputs::doSlowInterrupt();
             Monitor::doSlowInterrupt();
+            hardware::doSlowInterrupt();
         }
     }
 }

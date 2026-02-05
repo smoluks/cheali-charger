@@ -38,7 +38,7 @@ namespace hardware {
     uint8_t getKeyPressed();
     void setBuzzer(uint8_t val);
     void setFan(bool enable);
-    void setLCDBacklight(uint8_t val);
+    void setBacklightParams(uint8_t val);
 
     void setBatteryOutput(bool enable);
     void setChargerOutput(bool enable);

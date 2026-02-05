@@ -31,113 +31,111 @@
 
 #define __nop() asm("nop")
 
-// pin configuration
-#define MUX_ADR2_PIN            1
-#define MUX_ADR1_PIN            2
-#define MUX_ADR0_PIN            3
+//  ----- MUX ----- 
+#define MUX_PORT                 &PORTE
+#define MUX_DDR                  &DDRE
 
-//pin 4 - 8 - reset, Vcc, GND, XTAL2, XTAL1
+#define MUX_ADR0_PORT            PIN_4
+#define MUX_ADR1_PORT            PIN_3
+#define MUX_ADR2_PORT            PIN_2
 
-//pin 9 - rs232 RX
-#define FAN_PIN                 9
-//pin 10 - rs232 TX
+#define MUX_V1_CH                MUX_ADR2_PORT | MUX_ADR1_PORT
+#define MUX_V2_CH                MUX_ADR1_PORT
+#define MUX_V3_CH                MUX_ADR0_PORT
+#define MUX_V4_CH                0 
+#define MUX_V5_CH                MUX_ADR2_PORT | MUX_ADR1_PORT | MUX_ADR0_PORT
+#define MUX_V6_CH                MUX_ADR2_PORT | MUX_ADR0_PORT
 
-#define DISCHARGE_DISABLE_PIN   11
-#define OUTPUT_DISABLE_PIN      12
-#define BACKLIGHT_PIN           13
-// pin 14 - the same pin for charge and discharge
-#define DISCHARGE_VALUE_PIN     14
-#define SMPS_VALUE_PIN          14
-#define SMPS_DISABLE_PIN        15
+// ----- ADC ----- 
+#define ADC_TEMP_EXT_CH          0
+#define ADC_BAT_MINUS_CH         1
+#define ADC_BAT_PLUS_CH          2
+#define ADC_VIN_CH               3
+#define ADC_DISC_I_CH            4
+#define ADC_CHRG_I_CH            5
+#define ADC_4051_CH              6
+#define ADC_TEMP_INT_CH          7
 
-#define BUZZER_PORT             &PORTB, PIN_0
-#define BUZZER_DDR              &DDRB, PIN_0
-#define BUZZER_PIN              &PINB, PIN_0
+// ----- PWM -----
+#define SMPS_UP_PORT             &PORTB, PIN_5
+#define SMPS_UP_DDR              &DDRB, PIN_5
+
+#define SMPS_DOWN_PORT           &PORTB, PIN_6
+#define SMPS_DOWN_DDR            &DDRB, PIN_6
+
+#define SMPS_DISABLE_PORT        &PORTB, PIN_7
+#define SMPS_DISABLE_DDR         &DDRB, PIN_7
+
+#define DISCHARGER_DISABLE_PORT  &PORTE, PIN_5
+#define DISCHARGER_DISABLE_DDR   &DDRE, PIN_5
+
+#define BATTERY_DISABLE_PORT     &PORTG, PIN_3
+#define BATTERY_DISABLE_DDR      &DDRG, PIN_3
 
 // ----- LCD -----
 #define LCD_ENABLE_8BITMODE
 
-#define LCD_DATA_PORT          &PORTC
-#define LCD_DATA_DDR           &DDRC
-#define LCD_DATA_PIN           &PINC
+#define LCD_DATA_PORT            &PORTC
+#define LCD_DATA_DDR             &DDRC
+#define LCD_DATA_PIN             &PINC
 
-#define LCD_RS_PORT            &PORTD, PIN_7
-#define LCD_RS_DDR             &DDRD, PIN_7
+#define LCD_RS_PORT              &PORTD, PIN_7
+#define LCD_RS_DDR               &DDRD, PIN_7
 
-#define LCD_RW_PORT            &PORTG, PIN_1
-#define LCD_RW_DDR             &DDRG, PIN_1
+#define LCD_RW_PORT              &PORTG, PIN_1
+#define LCD_RW_DDR               &DDRG, PIN_1
 
-#define LCD_E_PORT             &PORTG, PIN_0
-#define LCD_E_DDR              &DDRG, PIN_0
+#define LCD_E_PORT               &PORTG, PIN_0
+#define LCD_E_DDR                &DDRG, PIN_0
 
 // ----- Buttons -----
-#define BUTTON_STOP_PORT       &PORTB, 3
-#define BUTTON_STOP_DDR        &DDRB, 3
-#define BUTTON_STOP_PIN        &PINB, 3
+#define BUTTON_STOP_PORT         &PORTB, PIN_3
+#define BUTTON_STOP_DDR          &DDRB, PIN_3
+#define BUTTON_STOP_PIN          &PINB, PIN_3
 
-#define BUTTON_DEC_PORT       &PORTB, 2
-#define BUTTON_DEC_DDR        &DDRB, 2
-#define BUTTON_DEC_PIN        &PINB, 2
+#define BUTTON_DEC_PORT          &PORTB, PIN_2
+#define BUTTON_DEC_DDR           &DDRB, PIN_2
+#define BUTTON_DEC_PIN           &PINB, PIN_2
 
-#define BUTTON_INC_PORT       &PORTE, 6
-#define BUTTON_INC_DDR        &DDRE, 6
-#define BUTTON_INC_PIN        &PINE, 6
+#define BUTTON_INC_PORT          &PORTE, PIN_6
+#define BUTTON_INC_DDR           &DDRE, PIN_6
+#define BUTTON_INC_PIN           &PINE, PIN_6
 
-#define BUTTON_START_PORT       &PORTE, 7
-#define BUTTON_START_DDR        &DDRE, 7
-#define BUTTON_START_PIN        &PINE, 7
+#define BUTTON_START_PORT        &PORTE, PIN_7
+#define BUTTON_START_DDR         &DDRE, PIN_7
+#define BUTTON_START_PIN         &PINE, PIN_7
 
+// ----- Balancer -----
+#define BALANCER_CELL1_PORT   &PORTA, PIN_3
+#define BALANCER_CELL1_DDR    &DDRA, PIN_3
 
-#define BALANCER7_LOAD_PIN      25
-#define BALANCER8_LOAD_PIN      26
+#define BALANCER_CELL2_PORT   &PORTA, PIN_5
+#define BALANCER_CELL2_DDR    &DDRA, PIN_5
 
-// pin 27 - 29 - AVcc, GND, AREF
+#define BALANCER_CELL3_PORT   &PORTA, PIN_4
+#define BALANCER_CELL3_DDR    &DDRA, PIN_4
 
-#define BALANCER6_LOAD_PIN      30
-#define BALANCER5_LOAD_PIN      31
-//pin 32
-#define MUX0_Z_A_PIN            A5
-#define MUX0_Z_D_PIN            32
-//pin 33
-#define MUX1_Z_A_PIN            A4
-#define MUX1_Z_D_PIN            33
-//pin 34
-#define DISCHARGE_CURRENT_PIN   A3
-//pin 35 - ??
-#define SMPS_CURRENT_PIN        A2
-//pin 36
-#define OUTPUT_VOLTAGE_MINUS_PIN    A1
-//pin 37
-#define OUTPUT_VOLTAGE_PLUS_PIN     A0
+#define BALANCER_CELL4_PORT   &PORTA, PIN_6
+#define BALANCER_CELL4_DDR    &DDRA, PIN_6
 
-// pin 38,39 - Vcc, GND
+#define BALANCER_CELL5_PORT   &PORTA, PIN_7
+#define BALANCER_CELL5_DDR    &DDRA, PIN_7
 
-#define BALANCER1_LOAD_PIN      40
-#define BALANCER2_LOAD_PIN      41
-#define BALANCER3_LOAD_PIN      42
-#define BALANCER4_LOAD_PIN      43
+#define BALANCER_CELL6_PORT   &PORTA, PIN_3
+#define BALANCER_CELL6_DDR    &DDRA, PIN_3
 
-#define BALANCER_PWR_ENABLE_PIN        44
+//#define BALANCER_PWR_ENABLE_PIN        44
 
+// ----- common gpio ----- 
+#define BUZZER_PORT             &PORTB, PIN_0
+#define BUZZER_DDR              &DDRB, PIN_0
+#define BUZZER_PIN              &PINB, PIN_0
 
+#define BACKLIGHT_PORT          &PORTB, PIN_4
+#define BACKLIGHT_DDR           &DDRB, PIN_4
 
-//Multiplexer addresses
-#define MUXINPUT0     0
-#define MUXINPUT1     0
-
-#define MADDR_V_OUTMUX          (0 + MUXINPUT0)
-#define MADDR_T_INTERN          (1 + MUXINPUT0)
-#define MADDR_V_IN              (2 + MUXINPUT0)
-#define MADDR_T_EXTERN          (3 + MUXINPUT0)
-
-#define MADDR_V_BALANSER1       (0 + MUXINPUT1)
-#define MADDR_V_BALANSER2       (1 + MUXINPUT1)
-#define MADDR_V_BALANSER3       (2 + MUXINPUT1)
-#define MADDR_V_BALANSER4       (3 + MUXINPUT1)
-#define MADDR_V_BALANSER5       (4 + MUXINPUT1)
-#define MADDR_V_BALANSER6       (5 + MUXINPUT1)
-#define MADDR_V_BALANSER7       (6 + MUXINPUT1)
-#define MADDR_V_BALANSER8       (7 + MUXINPUT1)
+#define FAN_PORT                &PORTD, PIN_6
+#define FAN_DDR                 &DDRD, PIN_6
 
 
 #endif /* PINS_H_ */

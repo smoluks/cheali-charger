@@ -61,7 +61,7 @@ ISR(TIMER0_OVF_vect)
     TCNT0 = sound_TCNT0;
 }
 
-void hardware::setBuzzer(uint8_t val)
+void Timer0::setBuzzer(uint8_t val)
 {
     if (val == 0)
     {

@@ -77,10 +77,12 @@ const AnalogInputs::ValueType Tstep =  ANALOG_CELCIUS(1);
 
 uint16_t getSelector() {
     uint16_t result = EDIT_MENU_ALWAYS;
+    
 #ifdef ENABLE_FAN
     if(settings.fanOn != Settings::FanProgramTemperature && settings.fanOn != Settings::FanTemperature)
         result -= COND_FAN_ON_T;
 #endif
+
     if(settings.UART == Settings::Disabled)
         result -= COND_UART_ON;
 
@@ -95,7 +97,8 @@ uint16_t getSelector() {
  */
 const EditMenu::StaticEditData editData[] PROGMEM = {
 #ifdef ENABLE_LCD_BACKLIGHT
-{string_backlight,      COND_ALWAYS,    SETTING(UNSIGNED, backlight),       {1, 0, 100}},
+{string_backlightLevel,      COND_ALWAYS,    SETTING(UNSIGNED, backlightLevel),       {1, 0, 100}},
+{string_backlightTime,      COND_ALWAYS,    SETTING(UNSIGNED, backlightTime),       {1, 2, 25}},
 #endif
 #ifdef ENABLE_FAN
 {string_fanOn,          COND_ALWAYS,    EDIT_STRING_ARRAY(FanOnData),       {1, 0, Settings::FanProgramTemperature}},

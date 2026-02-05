@@ -18,8 +18,6 @@
 #ifndef GTPOWERA610_H_
 #define GTPOWERA610_H_
 
-#include "HardwareConfig.h"
-
 #include "Keyboard.h"
 #include "SMPS.h"
 #include "Discharger.h"
@@ -29,30 +27,31 @@
 
 #include STRINGS_HEADER
 
-namespace hardware {
+namespace hardware
+{
+    void doSlowInterrupt();
+    uint8_t getKeyPressed();
     void initializePins();
     void initialize();
-    uint8_t getKeyPressed();
-    void delay(uint16_t t);
-    void setLCDBacklight(uint8_t val);
-    void setBuzzer(uint8_t val);
+
+    void enableFan();
+    void disableFan();
+
+    void disableBacklight();
+    bool enableBacklight();
+    void setBacklightParams(uint8_t val, int8_t time);
+
+    void enableChargerOutput();
+    void disableChargerOutput();
+    
+    void enableDischargerOutput();
+    void disableDischargerOutput();
+
     void setBatteryOutput(bool enable);
-    void setChargerOutput(bool enable);
-    void setBalancerOutput(bool enable);
-    void setDischargerOutput(bool enable);
 
-    void setChargerValue(uint16_t value);
-    void setDischargerValue(uint16_t value);
-    //200W chargers do not have Vout limit, see also Monitor.cpp
-    inline void setVoutCutoff(AnalogInputs::ValueType v){};
-
-    void setFan(bool enable);
-    void setBalancer(uint8_t balance);
-    inline void doInterrupt(){}
-
-    void soundInterrupt();
-    inline void setExternalTemperatueOutput(bool enable) {};
+    void enableBalancerOutput();
+    void disableBalancerOutput();
+    void setBalancer(uint8_t bitmask);
 }
-
 
 #endif /* GTPOWERA610_H_ */

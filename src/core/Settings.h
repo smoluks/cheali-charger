@@ -37,7 +37,8 @@ struct Settings {
 
     static const uint16_t UARTSpeeds = 5;
     static const AnalogInputs::ValueType TempDifference = ANALOG_CELCIUS(5.12);
-    uint16_t backlight;
+    uint16_t backlightLevel;
+    uint16_t backlightTime;
 
     uint16_t fanOn;
     AnalogInputs::ValueType fanTempOn;

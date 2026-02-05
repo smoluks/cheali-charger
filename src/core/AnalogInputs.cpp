@@ -60,8 +60,8 @@ namespace AnalogInputs {
     uint16_t connectedBalancePortCells;
 
     volatile uint16_t  i_avrCount_;
-    volatile uint32_t  i_avrSum_[PHYSICAL_INPUTS];
-    volatile ValueType i_adc_[PHYSICAL_INPUTS];
+    volatile uint32_t  i_avrSum_[PHYSICAL_INPUTS]; //sum of raw values
+    volatile ValueType i_adc_[PHYSICAL_INPUTS]; //raw values
 
     ValueType avrAdc_[PHYSICAL_INPUTS];
     ValueType real_[ALL_INPUTS];
@@ -123,7 +123,6 @@ void AnalogInputs::doFullMeasurement()
     while(c == getFullMeasurementCount())
         Time::delayDoIdle(10);
 }
-
 
 void AnalogInputs::restoreDefault()
 {

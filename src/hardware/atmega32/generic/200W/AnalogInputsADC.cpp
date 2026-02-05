@@ -149,12 +149,12 @@ namespace AnalogInputsADC
     adc_correlation adc_input;
     adc_correlation adc_input_next;
     static volatile uint8_t g_addSumToInput = 0;
-    static volatile uint8_t g_input_ = 0;
-    static volatile uint8_t g_adcBurstCount_ = 0;
+    static volatile uint8_t _currentInput = 0;
+    static volatile uint8_t _currentBurstNumber = 0;
 
     static uint8_t adc_keyboard_;
 
-    inline void setADC(uint8_t pin)
+    inline void setADCChannel(uint8_t pin)
     {
         // ADLAR - ADC Left Adjust Result
         ADMUX = (EXTERNAL << 6) | _BV(ADLAR) | pin;
@@ -249,7 +249,7 @@ namespace AnalogInputsADC
         v = (high << 8) | low;
 
         //ignore first 3 measurements, ADC channel needs to stabilize
-        if (g_adcBurstCount_ > 2)
+        if (_currentBurstNumber > 2)
         {
             processConversion(v);
         }
@@ -274,7 +274,7 @@ namespace AnalogInputsADC
         }
 #endif
 
-        switch (g_adcBurstCount_++)
+        switch (_currentBurstNumber++)
         {
         case 0:
             /* set new mux address */
@@ -296,20 +296,20 @@ namespace AnalogInputsADC
 
         case ANALOG_INPUTS_ADC_BURST_COUNT + 2:
             /* set next adc input */
-            setADC(adc_input_next.adc);
+            setADCChannel(adc_input_next.adc);
             /* switch to new input */
-            g_adcBurstCount_ = 0;
+            _currentBurstNumber = 0;
             setupNextInput();
         }
     }
 
     void setupNextInput()
     {
-        g_input_ = nextInput(g_input_);
+        _currentInput = nextInput(_currentInput);
         adc_input = adc_input_next;
-        pgm::read(adc_input_next, &order_analogInputs_on[nextInput(g_input_)]);
+        pgm::read(adc_input_next, &order_analogInputs_on[nextInput(_currentInput)]);
 
-        if (g_input_ == 0)
+        if (_currentInput == 0)
         {
             finalizeMeasurement();
             g_addSumToInput = AnalogInputs::i_avrCount_ > 0;

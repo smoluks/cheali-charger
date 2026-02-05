@@ -63,11 +63,11 @@ void Discharger::setValue(uint16_t value)
     if(value > DISCHARGER_UPPERBOUND_VALUE)
         value = DISCHARGER_UPPERBOUND_VALUE;
     value_ = value;
-    hardware::setDischargerValue(value_);
+    Timer1::setDischargerValue(value_);
     AnalogInputs::resetMeasurement();
-
 }
 
+//called form TheveninDischargeStrategy
 void Discharger::trySetIout(AnalogInputs::ValueType I)
 {
     AnalogInputs::ValueType maxI = getMaxIout();
@@ -86,19 +86,21 @@ void Discharger::powerOn()
 
     setValue(0);
     IoutSet_ = 0;
-    hardware::setDischargerOutput(true);
+    hardware::enableDischargerOutput();
     on_ = true;
 }
 
 void Discharger::powerOff()
 {
     if(!isPowerOn())
-        return;
+        return;    
 
-    setValue(0);
+    Timer1::disablePWM();
+    AnalogInputs::resetMeasurement();
+    value_ = 0;
     IoutSet_ = 0;
     on_ = false;
     Time::delayDoIdle(10);
-    hardware::setDischargerOutput(false);
+    hardware::disableDischargerOutput();
     Time::delayDoIdle(10);
 }

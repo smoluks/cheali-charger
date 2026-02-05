@@ -234,7 +234,7 @@ void Screen::runCalibrationError(const char *s, uint8_t error) {
 
 void Screen::runWelcomeScreen() {
     Screen::displayStrings(PSTR( CHEALI_CHARGER_PROJECT_NAME_STRING "\n"
-                                "v" CHEALI_CHARGER_VERSION_STRING));
+                                "v" CHEALI_CHARGER_VERSION_STRING), PSTR("Smoluks edition"));
 }
 
 void Screen::runNeedForceBalance() {

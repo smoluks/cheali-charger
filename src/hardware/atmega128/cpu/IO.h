@@ -39,16 +39,16 @@
 #define A7 7
 
 #define INLINE_ATTR __attribute__((always_inline))
-//#define INLINE_ATTR
+// #define INLINE_ATTR
 
 namespace IO
 {
         // Core IO functions to be implemented in proper target folder
-        inline void setPort(volatile uint8_t* port, uint8_t value) INLINE_ATTR;
-        inline uint8_t getPort(volatile uint8_t* port) INLINE_ATTR;
-        inline void setIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
-        inline void resetIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
-        inline bool readIOBit(volatile uint8_t* port, uint8_t bit) INLINE_ATTR;
+        inline void setPort(volatile uint8_t *port, uint8_t value) INLINE_ATTR;
+        inline uint8_t getPort(volatile uint8_t *port) INLINE_ATTR;
+        inline bool readIO(volatile uint8_t *port, uint8_t mask) INLINE_ATTR;
+        inline void setIO(volatile uint8_t *port, uint8_t mask) INLINE_ATTR;
+        inline void resetIO(volatile uint8_t *port, uint8_t mask) INLINE_ATTR;
 
         inline void digitalWrite(uint8_t pinNumber, uint8_t value) INLINE_ATTR;
         inline uint8_t digitalRead(uint8_t pinNumber) INLINE_ATTR;
@@ -56,45 +56,34 @@ namespace IO
         inline void analogReference(uint8_t mode) INLINE_ATTR;
 
         // Auxillery functions utilized for pin to port mapping
-        inline volatile uint8_t* pinToPort(uint8_t pinNumber) INLINE_ATTR;
+        inline volatile uint8_t *pinToPort(uint8_t pinNumber) INLINE_ATTR;
         inline uint8_t pinBitmask(uint8_t pinNumber) INLINE_ATTR;
-        inline volatile uint8_t* pinToInputPort(uint8_t pinNumber) INLINE_ATTR;
-        inline volatile uint8_t* pinToDDR(uint8_t pinNumber) INLINE_ATTR;
-        
-        inline void setPort(volatile uint8_t* port, uint8_t value)
+        inline volatile uint8_t *pinToInputPort(uint8_t pinNumber) INLINE_ATTR;
+        inline volatile uint8_t *pinToDDR(uint8_t pinNumber) INLINE_ATTR;
+
+        inline void setPort(volatile uint8_t *port, uint8_t value)
         {
                 *port = value;
         }
 
-        inline uint8_t getPort(volatile uint8_t* port)
+        inline uint8_t getPort(volatile uint8_t *port)
         {
                 return *port;
         }
 
-        inline void setIO(volatile uint8_t* port, uint8_t mask)
+        inline void setIO(volatile uint8_t *port, uint8_t mask)
         {
                 *port |= mask;
         }
 
-        inline void resetIO(volatile uint8_t* port, uint8_t mask)
+        inline void resetIO(volatile uint8_t *port, uint8_t mask)
         {
                 *port &= ~mask;
         }
 
-
-        inline void setIOBit(volatile uint8_t* port, uint8_t bit)
+        inline bool readIO(volatile uint8_t *port, uint8_t mask)
         {
-                *port |= _BV(bit);
-        }
-
-        inline void resetIOBit(volatile uint8_t* port, uint8_t bit)
-        {
-                *port &= ~_BV(bit);
-        }
-
-        inline bool readIOBit(volatile uint8_t* port, uint8_t bit)
-        {
-                return *port & _BV(bit);
+                return *port & mask;
         }
 
         inline void digitalWrite(uint8_t pinNumber, uint8_t value)
@@ -104,9 +93,12 @@ namespace IO
                 uint8_t bitmask = pinBitmask(pinNumber);
 
                 // Set the output
-                if (value) {
+                if (value)
+                {
                         *port |= bitmask;
-                } else {
+                }
+                else
+                {
                         *port &= ~bitmask;
                 }
                 return;
@@ -126,10 +118,13 @@ namespace IO
                 volatile uint8_t *port = pinToDDR(pinNumber);
                 uint8_t bitmask = pinBitmask(pinNumber);
 
-                if (mode) {
+                if (mode)
+                {
                         // Mode is not 0, Set mode to output
                         *port |= bitmask;
-                } else {
+                }
+                else
+                {
                         // Set pin to input
                         *port &= ~bitmask;
                 }
@@ -137,65 +132,68 @@ namespace IO
 
         inline void analogReference(uint8_t mode)
         {
-            if (mode == 0){
-                // External reference - Clear bits 6 & 7
-                ADMUX &= ~(0b11000000);
-            } else {
-                // Implement other modes?
-            }
+                if (mode == 0)
+                {
+                        // External reference - Clear bits 6 & 7
+                        ADMUX &= ~(0b11000000);
+                }
+                else
+                {
+                        // Implement other modes?
+                }
         }
 
         // Convert physical pin number to logical port address
-        inline volatile uint8_t* pinToPort(uint8_t pinNumber)
+        inline volatile uint8_t *pinToPort(uint8_t pinNumber)
         {
                 // Better way to do this?
                 switch (pinNumber)
                 {
-                        // Port A
-                        case 30:
-                        case 31:
-                        case 32:
-                        case 33:
-                        case 34:
-                        case 35:
-                        case 36:
-                        case 37:
+                // Port A
+                case 30:
+                case 31:
+                case 32:
+                case 33:
+                case 34:
+                case 35:
+                case 36:
+                case 37:
                         return &PORTA;
 
-                        // Port B
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 40:
-                        case 41:
-                        case 42:
-                        case 43:
-                        case 44:
+                // Port B
+                case 1:
+                case 2:
+                case 3:
+                case 40:
+                case 41:
+                case 42:
+                case 43:
+                case 44:
                         return &PORTB;
 
-                        // Port C
-                        case 19:
-                        case 20:
-                        case 21:
-                        case 22:
-                        case 23:
-                        case 24:
-                        case 25:
-                        case 26:
+                // Port C
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                case 24:
+                case 25:
+                case 26:
                         return &PORTC;
 
-                        // Port D
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
-                        case 16:
+                // Port D
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
                         return &PORTD;
 
-                        default:
+                default:
                         return 0;
                 }
         }
@@ -205,177 +203,174 @@ namespace IO
         {
                 switch (pinNumber)
                 {
-                        // Px0
-                        case 37:
-                        case 40:
-                        case 19:
-                        case 9:
-                        return 1<<0;
+                // Px0
+                case 37:
+                case 40:
+                case 19:
+                case 9:
+                        return 1 << 0;
 
-                        // Px1
-                        case 36:
-                        case 41:
-                        case 20:
-                        case 10:
-                        return 1<<1;
+                // Px1
+                case 36:
+                case 41:
+                case 20:
+                case 10:
+                        return 1 << 1;
 
-                        // Px2
-                        case 35:
-                        case 42:
-                        case 21:
-                        case 11:
-                        return 1<<2;
+                // Px2
+                case 35:
+                case 42:
+                case 21:
+                case 11:
+                        return 1 << 2;
 
-                        // Px3
-                        case 34:
-                        case 43:
-                        case 22:
-                        case 12:
-                        return 1<<3;
+                // Px3
+                case 34:
+                case 43:
+                case 22:
+                case 12:
+                        return 1 << 3;
 
-                        // Px4
-                        case 33:
-                        case 44:
-                        case 23:
-                        case 13:
-                        return 1<<4;
+                // Px4
+                case 33:
+                case 44:
+                case 23:
+                case 13:
+                        return 1 << 4;
 
-                        // Px5
-                        case 32:
-                        case 1:
-                        case 24:
-                        case 14:
-                        return 1<<5;
+                // Px5
+                case 32:
+                case 1:
+                case 24:
+                case 14:
+                        return 1 << 5;
 
-                        // Px6
-                        case 31:
-                        case 2:
-                        case 25:
-                        case 15:
-                        return 1<<6;
+                // Px6
+                case 31:
+                case 2:
+                case 25:
+                case 15:
+                        return 1 << 6;
 
-                        // Px7
-                        case 30:
-                        case 3:
-                        case 26:
-                        case 16:
-                        return 1<<7;
+                // Px7
+                case 30:
+                case 3:
+                case 26:
+                case 16:
+                        return 1 << 7;
 
-                        default:
+                default:
                         return 0;
                 }
-
         }
 
         // Pin number to input register map
-        inline volatile uint8_t* pinToInputPort(uint8_t pinNumber)
+        inline volatile uint8_t *pinToInputPort(uint8_t pinNumber)
         {
                 switch (pinNumber)
                 {
-                        // Port A
-                        case 30:
-                        case 31:
-                        case 32:
-                        case 33:
-                        case 34:
-                        case 35:
-                        case 36:
-                        case 37:
+                // Port A
+                case 30:
+                case 31:
+                case 32:
+                case 33:
+                case 34:
+                case 35:
+                case 36:
+                case 37:
                         return &PINA;
 
-                        // Port B
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 40:
-                        case 41:
-                        case 42:
-                        case 43:
-                        case 44:
+                // Port B
+                case 1:
+                case 2:
+                case 3:
+                case 40:
+                case 41:
+                case 42:
+                case 43:
+                case 44:
                         return &PINB;
 
-                        // Port C
-                        case 19:
-                        case 20:
-                        case 21:
-                        case 22:
-                        case 23:
-                        case 24:
-                        case 25:
-                        case 26:
+                // Port C
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                case 24:
+                case 25:
+                case 26:
                         return &PINC;
 
-                        // Port D
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
-                        case 16:
+                // Port D
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
                         return &PIND;
 
-                        default:
+                default:
                         return 0;
                 }
-
         }
 
         // Pin number to data direction register
-        inline volatile uint8_t* pinToDDR(uint8_t pinNumber)
+        inline volatile uint8_t *pinToDDR(uint8_t pinNumber)
         {
                 switch (pinNumber)
                 {
-                        // Port A
-                        case 30:
-                        case 31:
-                        case 32:
-                        case 33:
-                        case 34:
-                        case 35:
-                        case 36:
-                        case 37:
+                // Port A
+                case 30:
+                case 31:
+                case 32:
+                case 33:
+                case 34:
+                case 35:
+                case 36:
+                case 37:
                         return &DDRA;
 
-                        // Port B
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 40:
-                        case 41:
-                        case 42:
-                        case 43:
-                        case 44:
+                // Port B
+                case 1:
+                case 2:
+                case 3:
+                case 40:
+                case 41:
+                case 42:
+                case 43:
+                case 44:
                         return &DDRB;
 
-                        // Port C
-                        case 19:
-                        case 20:
-                        case 21:
-                        case 22:
-                        case 23:
-                        case 24:
-                        case 25:
-                        case 26:
+                // Port C
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                case 24:
+                case 25:
+                case 26:
                         return &DDRC;
 
-                        // Port D
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
-                        case 16:
+                // Port D
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
                         return &DDRD;
 
-                        default:
+                default:
                         return 0;
                 }
         }
-
 
 }
 #endif /* IO_H_ */

@@ -222,7 +222,7 @@ namespace HD44780
       __nop();
       __nop();
 
-      uint8_t busyFlag = IO::readIOBit(LCD_DATA_PIN, 7);
+      uint8_t busyFlag = IO::readIO(LCD_DATA_PIN, PIN_7);
 
       IO::resetIO(LCD_E_PORT);
 
@@ -233,7 +233,7 @@ namespace HD44780
       __nop();
       __nop();
       __nop();
-      uint8_t busyFlag = IO::readIOBit(LCD_DATA_PIN, 7);
+      uint8_t busyFlag = IO::readIO(LCD_DATA_PIN, PIN_7);
       IO::resetIO(LCD_E_PORT);
       __nop();
       __nop();

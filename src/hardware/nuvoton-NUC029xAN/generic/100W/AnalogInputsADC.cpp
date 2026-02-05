@@ -91,7 +91,7 @@ inline uint8_t nextInput(uint8_t i) {
 }
 
 
-void setADC(uint8_t pin) {
+void setADCChannel(uint8_t pin) {
     ADC_SET_INPUT_CHANNEL(ADC, 1 << IO::getADCChannel(pin));
 }
 
@@ -173,7 +173,7 @@ void startConversion()
     g_adcBurstCount = 0;
     g_adcSum = 0;
     uint8_t adc_pin = order_analogInputs_on[current_input_].adc_pin_;
-    setADC(adc_pin);
+    setADCChannel(adc_pin);
     if(adc_pin > 64) {
         ADC_CONFIG_CH7(ADC, (adc_pin >> 6) << ADC_ADCHER_PRESEL_Pos);
     } else {

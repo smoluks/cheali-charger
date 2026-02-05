@@ -34,6 +34,7 @@
 #if defined(ENABLE_FAN) && defined(ENABLE_T_INTERNAL)
 #define MONITOR_T_INTERNAL_FAN
 #endif
+#include <SMPS_PID.h>
 
 
 
@@ -145,7 +146,10 @@ void Monitor::doIdle()
             return;
         }
     }
-    hardware::setFan(fan);
+    if(fan)
+        hardware::enableFan();
+    else
+        hardware::disableFan();
 #endif
 }
 
@@ -161,7 +165,7 @@ void Monitor::powerOn()
         if(Vmax > MAX_CHARGE_V) {
             Vmax = MAX_CHARGE_V;
         }
-        hardware::setVoutCutoff(Vmax);
+        SMPS_PID::setVoutCutoff(Vmax);
 
         Vout_plus_adcMaxLimit_ = AnalogInputs::reverseCalibrateValue(AnalogInputs::Vout_plus_pin, Vmax);
         if(Vout_plus_adcMaxLimit_ > ANALOG_INPUTS_MAX_ADC_Vout_plus_pin) {

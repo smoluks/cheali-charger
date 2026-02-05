@@ -47,12 +47,11 @@
 #define SETTINGS_MAX_DISCHARGE_P    MAX_DISCHARGE_P
 #endif
 
-
-
 Settings settings;
 
 const Settings defaultSettings PROGMEM = {
-        70,                 //backlight
+        70,                 //backlight level
+        5,                 //backlight time
         Settings::FanTemperature, //fanOn
         ANALOG_CELCIUS(50), //fanTempOn
         ANALOG_CELCIUS(60), //dischargeTempOff
@@ -106,6 +105,7 @@ void Settings::setDefault()
 {
     pgm::read(*this, &defaultSettings);
 }
+
 void Settings::restoreDefault() {
     settings.setDefault();
     Settings::save();
@@ -130,7 +130,7 @@ void Settings::check() {
 
 void Settings::apply() {
 #ifdef ENABLE_LCD_BACKLIGHT
-    hardware::setLCDBacklight(backlight);
+    hardware::setBacklightParams(backlightLevel, backlightTime);
 #endif
 //    hardware::setExternalTemperatueOutput(externT);
 }

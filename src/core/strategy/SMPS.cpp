@@ -80,7 +80,7 @@ void SMPS::setValue(uint16_t value)
         value = SMPS_UPPERBOUND_VALUE;
     value_ = value;
 
-    hardware::setChargerValue(value_);
+    Timer1::setChargerValue(value_);
     AnalogInputs::resetMeasurement();
 }
 
@@ -111,7 +111,7 @@ void SMPS::powerOn()
     value_ = 0;
     IoutSet_ = 0;
     setValue(0);
-    hardware::setChargerOutput(true);
+    hardware::enableChargerOutput();
     on_ = true;
 }
 
@@ -121,10 +121,12 @@ void SMPS::powerOff()
     if(!isPowerOn())
         return;
 
-    setValue(0);
+    Timer1::disablePWM();
+    AnalogInputs::resetMeasurement();
+    
     //reset rising value
     value_ = 0;
     IoutSet_ = 0;
-    hardware::setChargerOutput(false);
+    hardware::disableChargerOutput();
     on_ = false;
 }
