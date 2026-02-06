@@ -1,8 +1,6 @@
 Are you tired of IMAX B6 clones running on obscure controllers?
-
-Do you want to customize your charger?
-
-Now:
+Your charger is broken and cannot be repaired?
+You want to customize your charger?
 
 Open-source hardware for cheali-charger!
 ==========================
